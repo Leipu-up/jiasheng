@@ -1,0 +1,197 @@
+<!-- 首页 -->
+<view class="home-page">
+  <!-- 顶部导航栏 -->
+  <view class="top-nav">
+    <!-- 左侧：用户信息 -->
+    <view class="user-section" bindtap="onUserInfoTap">
+      <view class="user-avatar">
+        <image 
+          class="avatar-img" 
+          src="{{userInfo.avatar}}" 
+          mode="aspectFill"
+        />
+      </view>
+      <view class="user-info">
+        <text class="user-name">{{userInfo.name}}</text>
+        <text class="user-dept">{{userInfo.department}}</text>
+      </view>
+    </view>
+    
+    <!-- 右侧：消息和搜索 -->
+    <view class="nav-right">
+      <!-- <view class="nav-icon message-icon" bindtap="onMessageCenter">
+        <text class="icon-text">🔔</text>
+        <view class="message-badge" wx:if="{{statistics.pendingTasks > 0}}">
+          <text class="badge-text">{{statistics.pendingTasks > 99 ? '99+' : statistics.pendingTasks}}</text>
+        </view>
+      </view> -->
+      <view class="nav-icon search-icon" bindtap="onSearch">
+        <text class="icon-text">🔍</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 时间天气区域 -->
+  <view class="time-weather-section">
+    <view class="time-section">
+      <text class="current-time">{{currentTime}}</text>
+    </view>
+    <view class="refresh-btn" bindtap="onRefresh">
+      <text class="refresh-icon">🔄</text>
+    </view>
+  </view>
+  
+  <!-- 轮播图 -->
+  <view class="swiper-section">
+    <swiper 
+      class="home-swiper" 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      interval="{{3000}}" 
+      duration="{{500}}"
+      circular="{{true}}"
+      bindchange="onSwiperChange"
+    >
+      <block wx:for="{{swiperList}}" wx:key="id">
+        <swiper-item>
+          <view class="swiper-item" bindtap="onSwiperTap" data-index="{{index}}">
+            <image class="swiper-img" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="swiper-mask"></view>
+            <text class="swiper-title">{{item.title}}</text>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+    <view class="swiper-indicator">
+      <text class="current-index">{{currentSwiperIndex + 1}}</text>
+      <text class="divider">/</text>
+      <text class="total-index">{{swiperList.length}}</text>
+    </view>
+  </view>
+  
+  <!-- 数据统计卡片 -->
+  <view class="statistics-section">
+    <view class="stat-card" bindtap="onTodayProductionTap">
+      <view class="stat-header">
+        <text class="stat-icon">📈</text>
+        <text class="stat-title">今日产量</text>
+      </view>
+      <view class="stat-content">
+        <text class="stat-number">{{statistics.todayProduction}}</text>
+        <text class="stat-unit">件</text>
+      </view>
+      <view class="stat-footer">
+        <text class="compare-text">较昨日</text>
+        <text class="compare-rate {{statistics.productionRate.includes('+') ? 'up' : 'down'}}">
+          {{statistics.productionRate}}
+        </text>
+      </view>
+    </view>
+    
+    <view class="stat-card" bindtap="onQualityRateTap">
+      <view class="stat-header">
+        <text class="stat-icon">✅</text>
+        <text class="stat-title">合格率</text>
+      </view>
+      <view class="stat-content">
+        <text class="stat-number">{{statistics.qualityPassRate}}</text>
+        <text class="stat-unit">%</text>
+      </view>
+      <view class="stat-footer">
+        <text class="target-text">目标: 98%</text>
+        <text class="target-status {{statistics.qualityPassRate >= 98 ? 'achieved' : 'not-achieved'}}">
+          {{statistics.qualityPassRate >= 98 ? '达标' : '未达标'}}
+        </text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 功能模块 -->
+  <view class="modules-section">
+    <view class="section-header">
+      <text class="section-title">功能模块</text>
+      <view class="section-subtitle">
+        <text class="subtitle-text">点击使用相应功能</text>
+      </view>
+    </view>
+    
+    <view class="modules-grid">
+      <view 
+        class="module-item {{item.enabled ? 'enabled' : 'disabled'}}" 
+        wx:for="{{functionModules}}" 
+        wx:key="id"
+        bindtap="onModuleTap"
+        data-id="{{item.id}}"
+      >
+        <view class="module-icon" style="background: {{item.color}}22; color: {{item.color}}">
+          <text class="icon-text">{{item.icon}}</text>
+        </view>
+        <text class="module-title">{{item.title}}</text>
+        <text class="module-desc">{{item.description}}</text>
+        <view class="module-status" wx:if="{{!item.enabled}}">
+          <text class="status-text">开发中</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 通知公告 -->
+  <view class="notice-section">
+    <view class="section-header">
+      <text class="section-title">通知公告</text>
+      <view class="view-all" bindtap="viewAllNotices">
+        <text class="view-text">查看全部</text>
+        <text class="arrow-icon">›</text>
+      </view>
+    </view>
+    
+    <view class="notice-list">
+      <view 
+        class="notice-item" 
+        wx:for="{{noticeList}}" 
+        wx:key="id"
+        bindtap="onNoticeTap"
+        data-id="{{item.id}}"
+      >
+        <view class="notice-left">
+          <view class="notice-badge" wx:if="{{item.isNew}}">
+            <text class="badge-text">NEW</text>
+          </view>
+          <text class="notice-title">{{item.title}}</text>
+        </view>
+        <view class="notice-right">
+          <text class="notice-time">{{item.time}}</text>
+          <text class="notice-arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 快捷操作 -->
+  <!-- <view class="quick-actions">
+    <view class="section-header">
+      <text class="section-title">快捷操作</text>
+    </view>
+    
+    <view class="actions-grid">
+      <view 
+        class="action-item" 
+        wx:for="{{quickActions}}" 
+        wx:key="id"
+        bindtap="onQuickActionTap"
+        data-action="{{item.action}}"
+      >
+        <view class="action-icon">
+          <text class="icon-text">{{item.icon}}</text>
+        </view>
+        <text class="action-title">{{item.title}}</text>
+      </view>
+    </view>
+  </view> -->
+  
+  <!-- 底部信息 -->
+  <view class="bottom-info">
+    <text class="company-name">© 2025 智能生产管理系统</text>
+    <text class="system-version">Version 1.0.0</text>
+  </view>
+</view>

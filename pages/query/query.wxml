@@ -1,0 +1,208 @@
+<!-- 搜索区域 -->
+<view class="search-section">
+  <view class="search-wrapper">
+    <input 
+      class="search-input" 
+      placeholder="输入产品名称进行查询" 
+      placeholder-class="placeholder"
+      value="{{searchValue}}"
+      bindinput="onSearchInput"
+      bindconfirm="handleSearch"
+      confirm-type="search"
+    />
+    <button class="search-btn compact" type="primary" bindtap="handleSearch">查 询</button>
+  </view>
+  
+  <!-- 搜索提示 -->
+  <view class="search-tips" wx:if="{{showSearchTips}}">
+    <text>支持模糊搜索，按Enter键或点击查询按钮</text>
+  </view>
+</view>
+
+<!-- 查询结果区域 -->
+<view class="result-section">
+  <!-- 无数据提示 -->
+  <view class="empty-state" wx:if="{{productList.length === 0 && !isLoading}}">
+    <text class="empty-text">
+      {{searchValue ? '未找到相关产品数据' : '当前数据过多,输入查询条件后查看结果'}}
+    </text>
+    <text class="empty-subtext">请检查输入的关键词是否正确</text>
+  </view>
+  
+  <!-- 数据列表 -->
+  <view class="data-table" wx:else>
+    <!-- 表头 -->
+    <view class="table-header">
+      <view class="header-cell product-name">产品名称</view>
+      <view class="header-cell version">版本号</view>
+      <view class="header-cell process">工序名称</view>
+    </view>
+    
+    <!-- 列表内容 -->
+    <view class="table-body">
+      <!-- 加载中 -->
+      <view class="loading-row" wx:if="{{isLoading && productList.length === 0}}">
+        <view class="loading-spinner"></view>
+        <text>加载数据中...</text>
+      </view>
+      
+      <!-- 数据行 -->
+      <view 
+        class="table-row" 
+        wx:for="{{productList}}" 
+        wx:key="id"
+        bindtap="onRowClick"
+        data-item="{{item}}"
+      >
+        <!-- 产品名称（固定宽度，最多两行） -->
+        <view class="row-cell product-name">
+          <text class="product-name-text" selectable>{{item.productName}}</text>
+        </view>
+        
+        <!-- 版本号 -->
+        <view class="row-cell version">
+          <view class="version-badge">{{item.version}}</view>
+        </view>
+        
+        <!-- 工序名称 -->
+        <view class="row-cell process">
+          <text class="process-text">{{item.processName}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 分页控件 -->
+  <view class="pagination-section" wx:if="{{productList.length > 0}}">
+    <view class="pagination-info">
+      <text>共 {{total}} 条记录</text>
+      <text class="page-info">第 {{currentPage}} / {{totalPages}} 页</text>
+    </view>
+    <view class="pagination-controls">
+      <button 
+        class="pagination-btn prev" 
+        bindtap="goPrevPage"
+        disabled="{{currentPage === 1}}"
+      >
+        <text class="btn-text">上一页</text>
+      </button>
+      
+      <view class="page-numbers">
+        <text 
+          class="page-number {{currentPage === page ? 'active' : ''}}"
+          wx:for="{{pageNumbers}}"
+          wx:key="index"
+          bindtap="goToPage"
+          data-page="{{page}}"
+        >
+          {{page === '...' ? '...' : page}}
+        </text>
+      </view>
+      
+      <button 
+        class="pagination-btn next" 
+        bindtap="goNextPage"
+        disabled="{{currentPage === totalPages}}"
+      >
+        <text class="btn-text">下一页</text>
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 新增：详情弹窗 -->
+<view class="modal-overlay" wx:if="{{showDetailModal}}" bindtap="closeDetailModal">
+  <view class="detail-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">产品详情</text>
+      <text class="close-btn" bindtap="closeDetailModal">×</text>
+    </view>
+    
+    <view class="modal-content">
+      <view class="detail-item">
+        <text class="detail-label">产品名称：</text>
+        <text class="detail-value">{{currentProduct.productName}}</text>
+      </view>
+      
+      <view class="detail-item">
+        <text class="detail-label">产品型号：</text>
+        <text class="detail-value">{{currentProduct.model}}</text>
+      </view>
+      
+      <view class="detail-item">
+        <text class="detail-label">版本号：</text>
+        <text class="detail-value">{{currentProduct.version}}</text>
+      </view>
+      
+      <view class="detail-item">
+        <text class="detail-label">工序名称：</text>
+        <text class="detail-value">{{currentProduct.processName}}</text>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="action-btn add-btn" bindtap="onAddButtonClick">
+        <text class="btn-icon">+</text>
+        <text class="btn-text">添加记录</text>
+      </button>
+      <button class="action-btn favorite-btn {{currentProduct.isFavorite ? 'active' : ''}}" 
+              bindtap="onFavoriteButtonClick">
+        <text class="btn-icon">⭐️</text>
+        <text class="btn-text">{{currentProduct.isFavorite ? '取消收藏' : '加入收藏'}}</text>
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 新增：添加记录弹窗 -->
+<view class="modal-overlay" wx:if="{{showAddModal}}" bindtap="closeAddModal">
+  <view class="add-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">添加记录</text>
+      <text class="close-btn" bindtap="closeAddModal">×</text>
+    </view>
+    
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">批次号：</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入批次号" 
+          value="{{addFormData.batchNumber}}"
+          bindinput="onAddFormInput"
+          data-field="batchNumber"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">设备号：</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入设备号" 
+          value="{{addFormData.deviceNumber}}"
+          bindinput="onAddFormInput"
+          data-field="deviceNumber"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">时间：</text>
+        <picker 
+          mode="datetime" 
+          value="{{addFormData.time}}"
+          bindchange="onAddFormInput"
+          data-field="time"
+        >
+          <view class="time-picker">
+            {{addFormData.time || '请选择时间'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="action-btn cancel-btn" bindtap="closeAddModal">取消</button>
+      <button class="action-btn save-btn" bindtap="saveAddInfo">保存</button>
+    </view>
+  </view>
+</view>

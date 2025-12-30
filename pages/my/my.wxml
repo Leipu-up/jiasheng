@@ -1,0 +1,209 @@
+<!-- 我的页面 -->
+<view class="my-page">
+    <!-- 顶部用户信息卡片 -->
+    <view class="user-card">
+        <!-- 背景装饰 -->
+        <view class="card-bg"></view>
+
+        <!-- 用户头像和基本信息 -->
+        <view class="user-info-section">
+            <!-- 头像区域 -->
+            <view class="avatar-section" bindtap="">
+                <view class="avatar-wrapper">
+                    <image class="user-avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+                    <!-- <view class="avatar-edit">
+                        <text class="edit-icon">📷</text>
+                    </view> -->
+                </view>
+            </view>
+
+            <!-- 基本信息 -->
+            <view class="basic-info">
+                <text class="user-name">{{userInfo.nickName}}</text>
+
+                <!-- 部门职位信息 -->
+                <view class="department-info">
+                    <text class="user-id">工号:{{userInfo.employeeNo}}</text>
+                    <!--                    <text class="dept-text">{{userInfo.department}}</text>-->
+                </view>
+
+                <!-- 手机号 -->
+                <view class="phone-section">
+                    <text class="phone-icon">📱</text>
+                    <text class="phone-text">{{userInfo.phoneNumber || '未绑定'}}</text>
+                </view>
+            </view>
+
+            <!-- 编辑按钮 -->
+            <view class="edit-btn" wx:if="{{userInfo.userId}}" bindtap="toEdit">
+                <text class="edit-text">编辑</text>
+            </view>
+            <view class="edit-btn" wx:if="{{!userInfo.userId}}" bindtap="toLogin">
+                <text class="edit-text">登录</text>
+            </view>
+        </view>
+
+        <!-- 工作统计 -->
+        <view class="work-statistics">
+            <view class="stat-item">
+                <text class="stat-number">{{statistics.totalTasks}}</text>
+                <text class="stat-label">总任务</text>
+            </view>
+            <view class="stat-divider"></view>
+            <view class="stat-item">
+                <text class="stat-number">{{statistics.completedTasks}}</text>
+                <text class="stat-label">已完成</text>
+            </view>
+            <view class="stat-divider"></view>
+            <view class="stat-item">
+                <text class="stat-number">{{statistics.pendingTasks}}</text>
+                <text class="stat-label">进行中</text>
+            </view>
+        </view>
+    </view>
+
+    <!-- 功能菜单 -->
+    <view class="menu-section">
+        <view class="section-title">
+            <text class="title-text">常用功能</text>
+        </view>
+
+        <view class="menu-grid">
+            <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="onMenuItemClick" data-id="{{item.id}}">
+                <view class="menu-icon">
+                    <text class="icon-text">{{item.icon}}</text>
+                </view>
+                <view class="menu-content">
+                    <text class="menu-title">{{item.title}}</text>
+                    <text class="menu-subtitle">{{item.subTitle}}</text>
+                </view>
+                <view class="menu-arrow">
+                    <text class="arrow-icon">›</text>
+                </view>
+            </view>
+        </view>
+    </view>
+
+    <!-- 系统设置区域 -->
+    <view class="system-section">
+        <view class="section-title">
+            <text class="title-text">系统设置</text>
+        </view>
+
+        <view class="system-list">
+            <!-- 检查更新 -->
+            <view class="system-item" bindtap="checkUpdate">
+                <view class="item-left">
+                    <text class="item-icon">🔄</text>
+                    <text class="item-title">检查更新</text>
+                </view>
+                <view class="item-right">
+                    <text class="version-text">v{{appVersion}}</text>
+                    <text class="arrow-icon">›</text>
+                </view>
+            </view>
+
+            <!-- 关于我们 -->
+            <view class="system-item" bindtap="aboutUs">
+                <view class="item-left">
+                    <text class="item-icon">ℹ️</text>
+                    <text class="item-title">关于我们</text>
+                </view>
+                <view class="item-right">
+                    <text class="arrow-icon">›</text>
+                </view>
+            </view>
+
+            <!-- 联系客服 -->
+            <view class="system-item" bindtap="contactCustomerService">
+                <view class="item-left">
+                    <text class="item-icon">📞</text>
+                    <text class="item-title">联系客服</text>
+                </view>
+                <view class="item-right">
+                    <text class="phone-call">189157555120</text>
+                    <text class="arrow-icon">›</text>
+                </view>
+            </view>
+
+            <!-- 最后登录时间 -->
+            <view class="system-item">
+                <view class="item-left">
+                    <text class="item-icon">⏰</text>
+                    <text class="item-title">最后登录</text>
+                </view>
+                <view class="item-right">
+                    <text class="login-time">{{lastLoginTime}}</text>
+                </view>
+            </view>
+        </view>
+    </view>
+
+    <!-- 退出登录按钮 -->
+    <view class="logout-section">
+        <button class="logout-btn" type="primary" bindtap="logout">
+            <text class="logout-icon">🚪</text>
+            <text class="logout-text">退出登录</text>
+        </button>
+    </view>
+
+    <!-- 底部版权信息 -->
+    <view class="footer">
+        <text class="copyright">© 2025 生产管理系统</text>
+        <text class="slogan">让生产更智能</text>
+    </view>
+</view>
+
+
+<!-- 登录弹窗 -->
+<view class="modal-overlay" wx:if="{{showLoginModal}}" bindtap="">
+    <view class="add-modal" catchtap="">
+        <view class="modal-header">
+            <text class="modal-title">登录</text>
+            <text class="close-btn" bindtap="closeLoginModal">×</text>
+        </view>
+
+        <view class="modal-content">
+            <view class="form-item">
+                <text class="form-label">手机号/工号：</text>
+                <input class="form-input" placeholder="请输入手机号/工号" value="{{phoneOrNo}}" data-field="phoneOrNo"
+                    bindinput="onFormInput" />
+            </view>
+        </view>
+        <view class="modal-actions">
+            <button class="action-btn cancel-btn" bindtap="closeLoginModal">取消</button>
+            <button class="action-btn save-btn" bindtap="checkUser">登录</button>
+        </view>
+    </view>
+</view>
+
+<!-- 编辑弹窗 -->
+<view class="modal-overlay" wx:if="{{showEditModal}}" bindtap="">
+    <view class="add-modal" catchtap="">
+        <view class="modal-header">
+            <text class="modal-title">编辑</text>
+            <text class="close-btn" bindtap="closeEditModal">×</text>
+        </view>
+        <view class="modal-content">
+            <view class="form-item">
+                <button class="btn" open-type="chooseAvatar" bindchooseavatar="choosePhoto">
+                    <image src="{{editAvatarUrl}}" class="photo" />
+                </button>
+            </view>
+            <view class="form-item">
+                <text class="form-label">昵称：</text>
+                <input class="input" type="nickname" placeholder="输入或获取昵称" model:value="{{userInfo.nickName}}" 
+                bindinput="onFormInput" data-field="editName"/>
+            </view>
+            <view class="form-item">
+                <text class="form-label">手机号：</text>
+                <input class="form-input" placeholder="请输入手机号" value="{{userInfo.phoneNumber}}" data-field="editPhone"
+                    bindinput="onFormInput" />
+            </view>
+        </view>
+        <view class="modal-actions">
+            <button class="action-btn cancel-btn" bindtap="closeEditModal">取消</button>
+            <button class="action-btn save-btn" bindtap="updateUser">保存</button>
+        </view>
+    </view>
+</view>

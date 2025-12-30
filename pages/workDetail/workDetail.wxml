@@ -1,0 +1,250 @@
+<!-- 头部信息 -->
+<view class="header-section">
+  <view class="header-back" bindtap="goBack">
+    <text class="back-icon">←</text>
+    <text class="back-text">返回</text>
+  </view>
+  
+  <view class="header-info">
+    <text class="header-title">工序详情</text>
+    <view class="product-info">
+      <text class="info-item">产品型号：{{productInfo.model}}</text>
+      <text class="info-item">批次号：{{productInfo.batchNumber}}</text>
+      <text class="info-item">产品名称：{{productInfo.productName}}</text>
+      <text class="info-item">版本号：{{productInfo.version}}</text>
+    </view>
+  </view>
+</view>
+
+<!-- 搜索区域 -->
+<view class="search-section">
+  <view class="search-wrapper">
+    <input 
+      class="search-input" 
+      placeholder="输入序号进行查询" 
+      placeholder-class="placeholder"
+      value="{{searchValue}}"
+      bindinput="onSearchInput"
+      bindconfirm="handleSearch"
+      confirm-type="search"
+    />
+    <button class="search-btn compact" type="primary" bindtap="handleSearch">查 询</button>
+    <button class="clear-btn" wx:if="{{searchValue}}" bindtap="clearSearch">清空</button>
+  </view>
+  
+  <!-- 搜索提示 -->
+  <view class="search-tips" wx:if="{{showSearchTips}}">
+    <text>支持按序号搜索，输入数字按Enter键或点击查询按钮</text>
+  </view>
+</view>
+
+<!-- 查询结果区域 -->
+<view class="result-section">
+  <!-- 无数据提示 -->
+  <view class="empty-state" wx:if="{{processList.length === 0 && !isLoading}}">
+    <text class="empty-text">
+      {{searchValue ? '未找到相关工序数据' : '暂无工序数据'}}
+    </text>
+    <text class="empty-subtext">请检查输入的序号是否正确</text>
+  </view>
+  
+  <!-- 数据列表 -->
+  <view class="data-table" wx:else>
+    <!-- 表头 -->
+    <view class="table-header">
+      <view class="header-cell serial-number">序号</view>
+      <view class="header-cell specification">规范/公差</view>
+      <view class="header-cell frequency">频次</view>
+      <view class="header-cell process-name">工序名称</view>
+    </view>
+    
+    <!-- 列表内容 -->
+    <view class="table-body">
+      <!-- 加载中 -->
+      <view class="loading-row" wx:if="{{isLoading && processList.length === 0}}">
+        <view class="loading-spinner"></view>
+        <text>加载数据中...</text>
+      </view>
+      
+      <!-- 数据行 -->
+      <view 
+        class="table-row" 
+        wx:for="{{processList}}" 
+        wx:key="id"
+        bindtap="onRowClick"
+        data-item="{{item}}"
+      >
+        <!-- 序号 -->
+        <view class="row-cell serial-number">
+          <view class="serial-badge">{{item.serialNumber}}</view>
+        </view>
+        
+        <!-- 规范/公差 -->
+        <view class="row-cell specification">
+          <text class="spec-text">{{item.specification}}</text>
+        </view>
+        
+        <!-- 频次 -->
+        <view class="row-cell frequency">
+          <text class="freq-text">{{item.frequency}}</text>
+        </view>
+        
+        <!-- 工序名称 -->
+        <view class="row-cell process-name">
+          <text class="process-text">{{item.processName}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 分页控件 -->
+  <view class="pagination-section" wx:if="{{processList.length > 0}}">
+    <view class="pagination-info">
+      <text>共 {{total}} 条记录</text>
+      <text class="page-info">第 {{currentPage}} / {{totalPages}} 页</text>
+    </view>
+    <view class="pagination-controls">
+      <button 
+        class="pagination-btn prev" 
+        bindtap="goPrevPage"
+        disabled="{{currentPage === 1}}"
+      >
+        <text class="btn-text">上一页</text>
+      </button>
+      
+      <view class="page-numbers">
+        <text class="page-number">{{currentPage}}</text>
+      </view>
+      
+      <button 
+        class="pagination-btn next" 
+        bindtap="goNextPage"
+        disabled="{{currentPage === totalPages}}"
+      >
+        <text class="btn-text">下一页</text>
+      </button>
+    </view>
+  </view>
+</view>
+<!-- 详情弹窗 -->
+<view class="modal-overlay" wx:if="{{showDetailModal}}">
+  <view class="detail-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">工序详情</text>
+      <text class="close-btn" bindtap="closeDetailModal">×</text>
+    </view>
+    
+    <view class="modal-content">
+      <!-- 工序基本信息 -->
+      <view class="detail-section">
+        <text class="section-title">工序信息</text>
+        <view class="detail-item">
+          <text class="detail-label">序号：</text>
+          <text class="detail-value">{{currentProcess.serialNumber}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">规范/公差：</text>
+          <text class="detail-value">{{currentProcess.specification}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">频次：</text>
+          <text class="detail-value">{{currentProcess.frequency}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">工序名称：</text>
+          <text class="detail-value">{{currentProcess.processName}}</text>
+        </view>
+      </view>
+      
+      <!-- 填空项区域 -->
+      <view class="blank-section">
+        <text class="section-title">检查记录（根据频次生成）</text>
+        <view class="blank-tips">
+          <text>频次 {{currentProcess.frequency}}，一天12小时工作制，共生成 {{blankItems.length}} 个检查点</text>
+        </view>
+        <view class="blank-items">
+          <view 
+            class="blank-item {{item.isFilled ? 'filled' : ''}} {{item.data && item.data.result === 'NG' ? 'ng' : ''}}"
+            wx:for="{{blankItems}}"
+            wx:key="id"
+            bindtap="onBlankItemClick"
+            data-index="{{index}}"
+          >
+            <text class="blank-index">{{item.id}}</text>
+            <text class="blank-status">{{item.status}}</text>
+            <text class="blank-time" wx:if="{{item.isFilled}}">{{item.data.checkTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="action-btn close-btn" bindtap="closeDetailModal">关闭</button>
+    </view>
+  </view>
+</view>
+
+<!-- 填空输入弹窗 -->
+<view class="modal-overlay" wx:if="{{showBlankModal}}">
+  <view class="blank-input-modal" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">填写检查记录 #{{currentBlankItem ? currentBlankItem.id : ''}}</text>
+      <text class="close-btn" bindtap="closeBlankModal">×</text>
+    </view>
+    
+    <view class="modal-content">
+      <view class="form-item">
+        <text class="form-label">实测值：</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入实测值" 
+          value="{{blankFormData.actualValue}}"
+          bindinput="onBlankFormInput"
+          data-field="actualValue"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">判定结果：</text>
+        <picker 
+          range="{{resultOptions}}" 
+          value="{{resultOptions.indexOf(blankFormData.result)}}"
+          bindchange="onResultChange"
+        >
+          <view class="picker-view">
+            {{blankFormData.result}}
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">检查时间：</text>
+        <input 
+          class="form-input time-input" 
+          placeholder="如 7:30" 
+          value="{{blankFormData.checkTime}}"
+          bindinput="onBlankFormInput"
+          data-field="checkTime"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="form-label">工件状态：</text>
+        <picker 
+          range="{{workpieceStatusOptions}}" 
+          value="{{workpieceStatusOptions.indexOf(blankFormData.workpieceStatus)}}"
+          bindchange="onWorkpieceStatusChange"
+        >
+          <view class="picker-view">
+            {{blankFormData.workpieceStatus}}
+          </view>
+        </picker>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="action-btn cancel-btn" bindtap="closeBlankModal">取消</button>
+      <button class="action-btn save-btn" bindtap="saveBlankItem">保存</button>
+    </view>
+  </view>
+</view>

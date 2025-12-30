@@ -1,0 +1,51 @@
+{
+    "entryPagePath": "pages/index/index",
+    "pages": [
+        "pages/index/index",
+        "pages/logs/logs",
+        "pages/query/query",
+        "pages/work/work",
+        "pages/workDetail/workDetail",
+        "pages/my/my"
+    ],
+    "window": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "句容嘉晟",
+        "navigationBarBackgroundColor": "#ffffff",
+        "enablePullDownRefresh": false,
+        "backgroundTextStyle":"dark"
+    },
+    "style": "v2",
+    "tabBar": {
+        "selectedColor": "#b4282d",
+        "position": "bottom",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "首页",
+                "iconPath": "images/tabBar/home.png",
+                "selectedIconPath": "images/tabBar/home_select.png"
+            },
+            {
+                "pagePath": "pages/query/query",
+                "text": "查询",
+                "iconPath": "images/tabBar/query.png",
+                "selectedIconPath": "images/tabBar/query_select.png"
+            },
+            {
+                "pagePath": "pages/work/work",
+                "text": "工作",
+                "iconPath": "images/tabBar/work.png",
+                "selectedIconPath": "images/tabBar/work_select.png"
+            },
+            {
+                "pagePath": "pages/my/my",
+                "text": "我的",
+                "iconPath": "images/tabBar/my.png",
+                "selectedIconPath": "images/tabBar/my_select.png"
+            }
+        ]
+    },
+    "sitemapLocation": "sitemap.json",
+    "lazyCodeLoading": "requiredComponents"
+}
