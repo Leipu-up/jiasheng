@@ -8,10 +8,11 @@
   <view class="header-info">
     <text class="header-title">工序详情</text>
     <view class="product-info">
-      <text class="info-item">产品型号：{{productInfo.model}}</text>
-      <text class="info-item">批次号：{{productInfo.batchNumber}}</text>
-      <text class="info-item">产品名称：{{productInfo.productName}}</text>
-      <text class="info-item">版本号：{{productInfo.version}}</text>
+        <text class="info-item">产品名称：{{productInfo.jjgxbgl.jjcpbgl.cpmc}}</text>
+      <text class="info-item">产品型号：{{productInfo.jjgxbgl.jjcpbgl.cpxh}}</text>
+      <text class="info-item">版本号：{{productInfo.jjgxbgl.jjcpbgl.cpbb}}</text>
+      <text class="info-item">批次号：{{productInfo.pch}}</text>
+      <text class="info-item">工序名称: {{productInfo.jjgxbgl.gxmc}}</text>
     </view>
   </view>
 </view>
@@ -29,7 +30,6 @@
       confirm-type="search"
     />
     <button class="search-btn compact" type="primary" bindtap="handleSearch">查 询</button>
-    <button class="clear-btn" wx:if="{{searchValue}}" bindtap="clearSearch">清空</button>
   </view>
   
   <!-- 搜索提示 -->
@@ -55,7 +55,7 @@
       <view class="header-cell serial-number">序号</view>
       <view class="header-cell specification">规范/公差</view>
       <view class="header-cell frequency">频次</view>
-      <view class="header-cell process-name">工序名称</view>
+      <view class="header-cell process-name">仪器</view>
     </view>
     
     <!-- 列表内容 -->
@@ -76,22 +76,19 @@
       >
         <!-- 序号 -->
         <view class="row-cell serial-number">
-          <view class="serial-badge">{{item.serialNumber}}</view>
+          <view class="serial-badge">{{item.xh}}</view>
         </view>
-        
         <!-- 规范/公差 -->
         <view class="row-cell specification">
-          <text class="spec-text">{{item.specification}}</text>
+          <text class="spec-text">{{item.gfgc}}</text>
         </view>
-        
         <!-- 频次 -->
         <view class="row-cell frequency">
-          <text class="freq-text">{{item.frequency}}</text>
+          <text class="freq-text">{{item.pc}}</text>
         </view>
-        
         <!-- 工序名称 -->
         <view class="row-cell process-name">
-          <text class="process-text">{{item.processName}}</text>
+          <text class="process-text">{{item.yq}}</text>
         </view>
       </view>
     </view>
@@ -112,10 +109,7 @@
         <text class="btn-text">上一页</text>
       </button>
       
-      <view class="page-numbers">
-        <text class="page-number">{{currentPage}}</text>
-      </view>
-      
+     
       <button 
         class="pagination-btn next" 
         bindtap="goNextPage"
@@ -140,19 +134,19 @@
         <text class="section-title">工序信息</text>
         <view class="detail-item">
           <text class="detail-label">序号：</text>
-          <text class="detail-value">{{currentProcess.serialNumber}}</text>
+          <text class="detail-value">{{currentProcess.xh}}</text>
         </view>
         <view class="detail-item">
           <text class="detail-label">规范/公差：</text>
-          <text class="detail-value">{{currentProcess.specification}}</text>
+          <text class="detail-value">{{currentProcess.gfgc}}</text>
         </view>
         <view class="detail-item">
           <text class="detail-label">频次：</text>
-          <text class="detail-value">{{currentProcess.frequency}}</text>
+          <text class="detail-value">{{currentProcess.pc}}</text>
         </view>
         <view class="detail-item">
-          <text class="detail-label">工序名称：</text>
-          <text class="detail-value">{{currentProcess.processName}}</text>
+          <text class="detail-label">仪器：</text>
+          <text class="detail-value">{{currentProcess.yq}}</text>
         </view>
       </view>
       
@@ -170,7 +164,7 @@
             bindtap="onBlankItemClick"
             data-index="{{index}}"
           >
-            <text class="blank-index">{{item.id}}</text>
+            <text class="blank-index">{{item.actualValue}}</text>
             <text class="blank-status">{{item.status}}</text>
             <text class="blank-time" wx:if="{{item.isFilled}}">{{item.data.checkTime}}</text>
           </view>
@@ -191,8 +185,15 @@
       <text class="modal-title">填写检查记录 #{{currentBlankItem ? currentBlankItem.id : ''}}</text>
       <text class="close-btn" bindtap="closeBlankModal">×</text>
     </view>
-    
-    <view class="modal-content">
+    <view class="modal-content" >
+        <view class="form-item" hidden>
+        <text class="form-label">主键隐藏：</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入实测值" 
+          value="{{blankFormData.id}}"
+        />
+        </view>
       <view class="form-item">
         <text class="form-label">实测值：</text>
         <input 
@@ -203,7 +204,6 @@
           data-field="actualValue"
         />
       </view>
-      
       <view class="form-item">
         <text class="form-label">判定结果：</text>
         <picker 
@@ -216,7 +216,6 @@
           </view>
         </picker>
       </view>
-      
       <view class="form-item">
         <text class="form-label">检查时间：</text>
         <input 
@@ -227,7 +226,6 @@
           data-field="checkTime"
         />
       </view>
-      
       <view class="form-item">
         <text class="form-label">工件状态：</text>
         <picker 
@@ -241,7 +239,6 @@
         </picker>
       </view>
     </view>
-    
     <view class="modal-actions">
       <button class="action-btn cancel-btn" bindtap="closeBlankModal">取消</button>
       <button class="action-btn save-btn" bindtap="saveBlankItem">保存</button>

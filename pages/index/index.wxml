@@ -13,7 +13,7 @@
       </view>
       <view class="user-info">
         <text class="user-name">{{userInfo.name}}</text>
-        <text class="user-dept">{{userInfo.department}}</text>
+        <text class="user-dept">工号:{{userInfo.employeeNo}}</text>
       </view>
     </view>
     

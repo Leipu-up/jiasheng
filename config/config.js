@@ -85,20 +85,21 @@ const ENV = {
   API.ENDPOINTS = {
     // 工作相关
     WORK: {
-      LIST: '/work/list',              // 获取工作列表
-      DETAIL: '/work/detail',          // 获取工作详情
-      CREATE: '/work/create',          // 创建工作记录
-      UPDATE: '/work/update',          // 更新工作记录
-      DELETE: '/work/delete',          // 删除工作记录
-      SEARCH: '/work/search',          // 搜索工作记录
-      STATISTICS: '/work/statistics'   // 工作统计
+      LIST: '/work/getPage',              // 获取工作列表
+      DETAILLIST: '/jjgxxqbgl/getPage',          // 获取工作详情
+      CREATE: '/work/saveOne',          // 创建工序详情表
+      UPDATE: '/work/updateWorkOne',          // 更新工序表
+      DELETE: '/work/deleteWorkOne',          // 删除工序表
+      JJGXJCJGBLIST: '/work/getJjgxjcjgbList',         
+      SAVEJJGXJCJGB: '/work/saveJjgxjcjgb'   // 更新检查结果表
     },
     
     // 产品相关
     PRODUCT: {
-      LIST: '/product/list',           // 获取产品列表
+      LIST: '/product/getPage',           // 获取产品列表
       DETAIL: '/product/detail',       // 获取产品详情
       SEARCH: '/product/search',       // 搜索产品
+      SAVE: '/product/saveOne',       // 保存工序检查表
       CATEGORIES: '/product/categories' // 产品分类
     },
     

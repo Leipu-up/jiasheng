@@ -140,7 +140,7 @@
     </view>
 
     <!-- 退出登录按钮 -->
-    <view class="logout-section">
+    <view class="logout-section" wx:if="{{userInfo.userId}}">
         <button class="logout-btn" type="primary" bindtap="logout">
             <text class="logout-icon">🚪</text>
             <text class="logout-text">退出登录</text>

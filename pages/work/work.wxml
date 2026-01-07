@@ -1,209 +1,145 @@
 <!-- 搜索区域 -->
 <view class="search-section">
-  <view class="search-wrapper">
-    <input 
-      class="search-input" 
-      placeholder="输入产品型号或批次号" 
-      placeholder-class="placeholder"
-      value="{{searchKeyword}}"
-      bindinput="onKeywordInput"
-      bindconfirm="handleSearch"
-      confirm-type="search"
-    />
-    <button class="search-btn" type="primary" bindtap="handleSearch">查</button>
-  </view>
-
-  <!-- 日期筛选区域 -->
-  <view class="date-filter-section">
-    <view class="date-filter-row">
-      <view class="date-filter-item">
-        <text class="date-label">开始日期：</text>
-        <picker 
-          mode="date" 
-          value="{{startDate}}"
-          bindchange="onStartDateChange"
-        >
-          <view class="date-picker {{startDate ? 'selected' : ''}}">
-            {{startDate || '请选择'}}
-          </view>
-        </picker>
-      </view>
-
-      <view class="date-filter-item">
-        <text class="date-label">结束日期：</text>
-        <picker 
-          mode="date" 
-          value="{{endDate}}"
-          bindchange="onEndDateChange"
-        >
-          <view class="date-picker {{endDate ? 'selected' : ''}}">
-            {{endDate || '请选择'}}
-          </view>
-        </picker>
-      </view>
+    <view class="search-wrapper">
+        <input class="search-input" placeholder="输入产品型号或批次号" placeholder-class="placeholder" value="{{searchKeyword}}"
+            bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
+        <button class="search-btn" type="primary" bindtap="handleSearch">查询</button>
     </view>
 
-    <view class="date-actions">
-      <button class="date-btn today-btn" bindtap="setToday">今天</button>
-      <button class="date-btn week-btn" bindtap="setLastWeek">近一周</button>
-      <button class="date-btn month-btn" bindtap="setLastMonth">近一月</button>
-      <button class="date-btn clear-btn" bindtap="clearDates">清空</button>
+    <!-- 日期筛选区域 -->
+    <view class="date-filter-section">
+        <view class="date-filter-row">
+            <view class="date-filter-item">
+                <text class="date-label">开始日期：</text>
+                <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+                    <view class="date-picker {{startDate ? 'selected' : ''}}">
+                        {{startDate || '请选择'}}
+                    </view>
+                </picker>
+            </view>
+
+            <view class="date-filter-item">
+                <text class="date-label">结束日期：</text>
+                <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+                    <view class="date-picker {{endDate ? 'selected' : ''}}">
+                        {{endDate || '请选择'}}
+                    </view>
+                </picker>
+            </view>
+        </view>
+
+        <view class="date-actions">
+            <button class="date-btn today-btn" bindtap="setToday">今天</button>
+            <button class="date-btn week-btn" bindtap="setLastWeek">近一周</button>
+            <button class="date-btn month-btn" bindtap="setLastMonth">近一月</button>
+            <button class="date-btn clear-btn" bindtap="clearDates">清空</button>
+        </view>
     </view>
-  </view>
 </view>
 
 
 <!-- 查询结果区域 -->
 <view class="result-section">
-  <!-- 无数据提示 -->
-  <view class="empty-state" wx:if="{{workList.length === 0 && !isLoading}}">
-    <text class="empty-text">
-      {{hasSearchCondition ? '未找到相关工作数据' : '请设置查询条件后查看'}}
-    </text>
-    <text class="empty-subtext">尝试调整日期范围或搜索关键词</text>
-  </view>
-  
-  <!-- 数据列表 -->
-  <view class="data-table" wx:else>
-    <!-- 表头 -->
-    <view class="table-header">
-      <view class="header-cell model-cell">产品型号</view>
-      <view class="header-cell version-cell">版本号</view>
-      <view class="header-cell batch-cell">批次号</view>
+    <!-- 无数据提示 -->
+    <view class="empty-state" wx:if="{{workList.length === 0 && !isLoading}}">
+        <text class="empty-text">
+            {{hasSearchCondition ? '未找到相关工作数据' : '请设置查询条件后查看'}}
+        </text>
+        <text class="empty-subtext">尝试调整日期范围或搜索关键词</text>
     </view>
-    
-    <!-- 列表内容 -->
-    <view class="table-body">
-      <!-- 加载中 -->
-      <view class="loading-row" wx:if="{{isLoading && workList.length === 0}}">
-        <view class="loading-spinner"></view>
-        <text>加载数据中...</text>
-      </view>
-      
-      <!-- 数据行 -->
-      <view 
-        class="table-row" 
-        wx:for="{{workList}}" 
-        wx:key="id"
-        bindtap="onRowClick"
-        bindlongpress="onRowLongPress"
-        data-index="{{index}}"
-        data-item="{{item}}"
-      >
-        <!-- 产品型号 -->
-        <view class="row-cell model-cell">
-          <text class="model-text">{{item.model}}</text>
-          <text class="model-name" wx:if="{{item.productName}}">{{item.productName}}</text>
+
+    <!-- 数据列表 -->
+    <view class="data-table" wx:else>
+        <!-- 表头 -->
+        <view class="table-header">
+            <view class="header-cell model-cell">产品型号</view>
+            <view class="header-cell batch-cell">批次号</view>
+            <view class="header-cell batch-cell">时间</view>
         </view>
-        
-        <!-- 版本号 -->
-        <view class="row-cell version-cell">
-          <view class="version-badge">{{item.version}}</view>
+
+        <!-- 列表内容 -->
+        <view class="table-body">
+            <!-- 加载中 -->
+            <view class="loading-row" wx:if="{{isLoading && workList.length === 0}}">
+                <view class="loading-spinner"></view>
+                <text>加载数据中...</text>
+            </view>
+
+            <!-- 数据行 -->
+            <view class="table-row" wx:for="{{workList}}" wx:key="id" bindtap="onRowClick"
+                bindlongpress="onRowLongPress" data-index="{{index}}" data-item="{{item}}">
+                <!-- 产品型号 -->
+                <view class="row-cell model-cell">
+                    <text class="model-text">{{item.jjgxbgl.jjcpbgl.cpmc}} </text>
+                    <text class="model-name">{{item.jjgxbgl.jjcpbgl.cpxh}}</text>
+                </view>
+
+                <!-- 版本号 -->
+                <view class="row-cell version-cell">
+                    <text class="batch-text">{{item.pch}}</text>
+                </view>
+
+                <!-- 批次号 -->
+                <view class="row-cell batch-cell">
+                    <text class="batch-text">{{item.rq}}</text>
+                    <text class="batch-status {{item.status === 'completed' ? 'completed' : 'processing'}}"
+                        wx:if="{{item.status}}">
+                        {{item.status === 'completed' ? '已完成' : '进行中'}}
+                    </text>
+                </view>
+
+            </view>
         </view>
-        
-        <!-- 批次号 -->
-        <view class="row-cell batch-cell">
-          <text class="batch-text">{{item.batchNumber}}</text>
-          <text class="batch-status {{item.status === 'completed' ? 'completed' : 'processing'}}" 
-                wx:if="{{item.status}}">
-            {{item.status === 'completed' ? '已完成' : '进行中'}}
-          </text>
-        </view>
-        
-        <!-- 长按提示 -->
-        <!-- <view class="longpress-hint">
-          <text class="hint-text">长按操作</text>
-        </view> -->
-      </view>
     </view>
-  </view>
 </view>
 
 <!-- 分页区域 -->
 <view class="pagination-section" wx:if="{{workList.length > 0}}">
-  <view class="pagination-info">
-    <text>共 {{total}} 条记录</text>
-    <text class="page-info">第 {{currentPage}} / {{totalPages}} 页</text>
-  </view>
-  <view class="pagination-controls">
-    <button 
-      class="pagination-btn prev" 
-      bindtap="goPrevPage"
-      disabled="{{currentPage === 1}}"
-    >
-      <text class="btn-text">上一页</text>
-    </button>
-    
-    <button 
-      class="pagination-btn next" 
-      bindtap="goNextPage"
-      disabled="{{currentPage === totalPages}}"
-    >
-      <text class="btn-text">下一页</text>
-    </button>
-  </view>
+    <view class="pagination-info">
+        <text>共 {{total}} 条记录</text>
+        <text class="page-info">第 {{currentPage}} / {{totalPages}} 页</text>
+    </view>
+    <view class="pagination-controls">
+        <button class="pagination-btn prev" bindtap="goPrevPage" disabled="{{currentPage === 1}}">
+            <text class="btn-text">上一页</text>
+        </button>
+
+        <button class="pagination-btn next" bindtap="goNextPage" disabled="{{currentPage === totalPages}}">
+            <text class="btn-text">下一页</text>
+        </button>
+    </view>
 </view>
 
 <!-- 修改记录弹窗 -->
 <view class="modal-overlay" wx:if="{{showEditModal}}">
-  <view class="edit-modal">
-    <view class="modal-header">
-      <text class="modal-title">修改记录</text>
-      <text class="close-btn" bindtap="closeEditModal">×</text>
+    <view class="edit-modal">
+        <view class="modal-header">
+            <text class="modal-title">修改记录</text>
+            <text class="close-btn" bindtap="closeEditModal">×</text>
+        </view>
+
+        <view class="modal-content">
+            <view class="form-item">
+                <text class="form-label">产品型号：</text>
+                <input class="form-input" placeholder="请输入产品型号" value="{{editFormData.model}}"
+                    bindinput="onEditFormInput" disabled data-field="model" />
+            </view>
+            <view class="form-item">
+                <text class="form-label">批次号：</text>
+                <input class="form-input" placeholder="请输入批次号" value="{{editFormData.pch}}" bindinput="onEditFormInput"
+                    data-field="pch" />
+            </view>
+            <view class="form-item">
+                <text class="form-label">设备号：</text>
+                <input class="form-input" placeholder="请输入设备号" value="{{editFormData.sbh}}" bindinput="onEditFormInput"
+                    data-field="sbh" />
+            </view>
+           
+        </view>
+
+        <view class="modal-actions">
+            <button class="action-btn cancel-btn" bindtap="closeEditModal">取消</button>
+            <button class="action-btn save-btn" bindtap="saveEditInfo">保存</button>
+        </view>
     </view>
-    
-    <view class="modal-content">
-      <view class="form-item">
-        <text class="form-label">产品型号：</text>
-        <input 
-          class="form-input" 
-          placeholder="请输入产品型号" 
-          value="{{editFormData.model}}"
-          bindinput="onEditFormInput"
-          data-field="model"
-        />
-      </view>
-      
-      <view class="form-item">
-        <text class="form-label">版本号：</text>
-        <input 
-          class="form-input" 
-          placeholder="请输入版本号" 
-          value="{{editFormData.version}}"
-          bindinput="onEditFormInput"
-          data-field="version"
-        />
-      </view>
-      
-      <view class="form-item">
-        <text class="form-label">批次号：</text>
-        <input 
-          class="form-input" 
-          placeholder="请输入批次号" 
-          value="{{editFormData.batchNumber}}"
-          bindinput="onEditFormInput"
-          data-field="batchNumber"
-        />
-      </view>
-      
-      <view class="form-item">
-        <text class="form-label">状态：</text>
-        <picker 
-          mode="selector" 
-          range="{{statusOptions}}"
-          value="{{editFormData.statusIndex}}"
-          bindchange="onStatusChange"
-        >
-          <view class="status-picker">
-            {{statusOptions[editFormData.statusIndex] || '请选择状态'}}
-          </view>
-        </picker>
-      </view>
-    </view>
-    
-    <view class="modal-actions">
-      <button class="action-btn cancel-btn" bindtap="closeEditModal">取消</button>
-      <button class="action-btn save-btn" bindtap="saveEditInfo">保存</button>
-    </view>
-  </view>
 </view>

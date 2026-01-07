@@ -18,6 +18,33 @@ class ApiService {
         this.endpoints = config.API_ENDPOINTS;
     }
 
+
+    // 检查登录状态
+    checkLogin = () => {
+        const userInfo = wx.getStorageSync('userInfo');
+        return !!userInfo;
+    };
+
+    // 跳转到登录页
+    goToLogin = (message = '请先登录') => {
+        wx.showModal({
+            title: '提示',
+            content: message,
+            confirmText: '去登录',
+            cancelText: '取消',
+            success: (res) => {
+                if (res.confirm) {
+                    console.log('来临');
+                    // 跳转到登录页
+                    wx.switchTab({
+                        url: '/pages/my/my'
+                    });
+                }
+            }
+        });
+    };
+
+
     /**
      * 获取完整URL
      * @param {string} endpoint - 接口路径
@@ -46,7 +73,7 @@ class ApiService {
      */
     getWorkList(params = {}) {
         const url = this.getUrl(this.endpoints.WORK.LIST);
-        return http.get(url, params, {
+        return http.post(url, params, {
             showLoading: true,
             loadingText: '加载工作列表...'
         });
@@ -57,13 +84,27 @@ class ApiService {
      * @param {string|number} id - 工作ID
      * @returns {Promise}
      */
-    getWorkDetail(id) {
-        const url = this.getUrl(this.endpoints.WORK.DETAIL);
-        return http.get(url, {
-            id
-        }, {
+    getWorkDetailList(params = {}) {
+        const url = this.getUrl(this.endpoints.WORK.DETAILLIST);
+        return http.post(url, params, {
             showLoading: true,
-            loadingText: '加载详情...'
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    getJjgxjcjgbList(params = {}) {
+        const url = this.getUrl(this.endpoints.WORK.JJGXJCJGBLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    updateCheckRecord(data) {
+        const url = this.getUrl(this.endpoints.WORK.SAVEJJGXJCJGB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
         });
     }
 
@@ -86,12 +127,9 @@ class ApiService {
      * @param {Object} data - 更新数据
      * @returns {Promise}
      */
-    updateWork(id, data) {
+    updateWork(data) {
         const url = this.getUrl(this.endpoints.WORK.UPDATE);
-        return http.put(url, {
-            id,
-            ...data
-        }, {
+        return http.put(url, data, {
             showLoading: true,
             loadingText: '更新中...'
         });
@@ -102,11 +140,9 @@ class ApiService {
      * @param {string|number} id - 工作ID
      * @returns {Promise}
      */
-    deleteWork(id) {
+    deleteWork(params) {
         const url = this.getUrl(this.endpoints.WORK.DELETE);
-        return http.delete(url, {
-            id
-        }, {
+        return http.put(url, params, {
             showLoading: true,
             loadingText: '删除中...'
         });
@@ -134,7 +170,7 @@ class ApiService {
      */
     getProductList(params = {}) {
         const url = this.getUrl(this.endpoints.PRODUCT.LIST);
-        return http.get(url, params, {
+        return http.post(url, params, {
             showLoading: true,
             loadingText: '加载产品列表...'
         });
@@ -165,6 +201,19 @@ class ApiService {
         return http.get(url, params, {
             showLoading: true,
             loadingText: '搜索产品...'
+        });
+    }
+
+    /**
+     * 更新用户信息
+     * @param {Object} userData - 用户数据
+     * @returns {Promise}
+     */
+    saveProduct(params) {
+        const url = this.getUrl(this.endpoints.PRODUCT.SAVE);
+        return http.put(url, params, {
+            showLoading: true,
+            loadingText: '添加工序检查表...'
         });
     }
 

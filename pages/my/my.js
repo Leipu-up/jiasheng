@@ -142,7 +142,7 @@ Page({
         if (!editPhone) {
             editPhone = this.data.userInfo.phoneNumber
         }
-        const editAvatarUrl = this.data.editAvatarUrl;
+        var editAvatarUrl = this.data.editAvatarUrl;
         console.log('用户输入的值:', editName, editPhone, editAvatarUrl);
         if (!editName || !editPhone || !editAvatarUrl) {
             wx.showToast({
@@ -170,38 +170,57 @@ Page({
             });
             return;
         }
-        // 构造符合WxyhEntity结构的对象
-        const wxyhEntity = {
-            phone: editPhone,
-            nickname: editName,
-            avatar: this.data.editAvatarUrl,
-            id: this.data.userInfo.userId
-        };
-        // 校验用户是否存在
-        api.updateUserInfo(wxyhEntity).then(responseData => {
-            // 处理成功响应
-            this.setData({
-                'userInfo': {
-                    avatarUrl: responseData.avatar,
-                    nickName: responseData.nickname,
-                    phoneNumber: responseData.phone,
-                    userId: responseData.id,
-                    department: '',
-                    employeeNo: responseData.employeeNo
-                },
-                editAvatarUrl: responseData.avatar,
-            });
-            // 更新本地存储
-            wx.setStorageSync('userInfo', {
-                ...this.data.userInfo
-            });
-            console.log(wx.getStorageSync('userInfo'));
-            this.closeEditModal();
-        }).catch(error => {
-            wx.hideLoading();
-            // 根据错误类型显示不同的提示
-            api.handleApiError(error);
+
+        // 将临时文件保存为本地文件
+        wx.saveFile({
+            tempFilePath: editAvatarUrl,
+            success: (res) => {
+                const savedFilePath = res.savedFilePath;
+                console.log('保存后的文件路径:', savedFilePath);
+                // 更新用户信息
+                editAvatarUrl = savedFilePath;
+                // 构造符合WxyhEntity结构的对象
+                const wxyhEntity = {
+                    phone: editPhone,
+                    nickname: editName,
+                    avatar: editAvatarUrl,
+                    id: this.data.userInfo.userId
+                };
+                // 更新用户信息
+                api.updateUserInfo(wxyhEntity).then(responseData => {
+                    // 处理成功响应
+                    this.setData({
+                        'userInfo': {
+                            avatarUrl: responseData.avatar,
+                            nickName: responseData.nickname,
+                            phoneNumber: responseData.phone,
+                            userId: responseData.id,
+                            department: '',
+                            employeeNo: responseData.employeeNo
+                        },
+                        editAvatarUrl: responseData.avatar,
+                    }, () => {
+                        // 更新本地存储
+                        wx.setStorageSync('userInfo', this.data.userInfo);
+                        console.log('存储的用户信息:', wx.getStorageSync('userInfo'));
+                        this.closeEditModal();
+                    });
+                }).catch(error => {
+                    wx.hideLoading();
+                    // 根据错误类型显示不同的提示
+                    api.handleApiError(error);
+                });
+            },
+            fail: (err) => {
+                wx.hideLoading();
+                console.error('保存文件失败:', err);
+                wx.showToast({
+                    title: '保存失败',
+                    icon: 'error'
+                });
+            }
         });
+
     },
     toLogin() {
         this.setData({
@@ -237,7 +256,7 @@ Page({
             // 处理成功响应
             this.setData({
                 'userInfo': {
-                    avatarUrl: responseData.avatarUrl,
+                    avatarUrl: responseData.avatar,
                     nickName: responseData.nickname,
                     phoneNumber: responseData.phone ? responseData.phone : '未绑定',
                     userId: responseData.id,
@@ -245,13 +264,25 @@ Page({
                     employeeNo: responseData.employeeNo
                 },
                 editAvatarUrl: responseData.avatarUrl,
+            }, () => {
+                // 更新本地存储
+                wx.setStorageSync('userInfo', this.data.userInfo);
+                console.log('存储的用户信息:', wx.getStorageSync('userInfo'));
+                // 检查文件是否存在
+                wx.getFileInfo({
+                    filePath: this.data.userInfo.avatarUrl,
+                    success: (res) => {
+                        console.log('头像文件存在:', res);
+                    },
+                    fail: (err) => {
+                        console.log('头像文件不存在，使用默认头像');
+                        this.setData({
+                            'userInfo.avatarUrl': '/images/touxiang.png'
+                        });
+                    }
+                });
+                this.closeLoginModal();
             });
-            // 更新本地存储
-            wx.setStorageSync('userInfo', {
-                ...this.data.userInfo
-            });
-            console.log(wx.getStorageSync('userInfo'));
-            this.closeLoginModal();
         }).catch(error => {
             wx.hideLoading();
             if (error.type === 'empty') {
@@ -302,7 +333,9 @@ Page({
 
     // 菜单项点击事件
     onMenuItemClick(e) {
+        console.log(e);
         const itemId = e.currentTarget.dataset.id;
+        console.log(itemId);
         const item = this.data.menuItems.find(item => item.id === itemId);
 
         if (!item) return;
@@ -310,13 +343,13 @@ Page({
         switch (itemId) {
             case 1:
                 // 我的工作
-                wx.navigateTo({
-                    url: '/pages/worK/worK',
+                wx.switchTab({
+                    url: '/pages/work/work',
                 });
                 break;
             case 2:
                 // 我的收藏
-                wx.navigateTo({
+                wx.switchTab({
                     url: '/pages/query/query',
                 });
                 break;
