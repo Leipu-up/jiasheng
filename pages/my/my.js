@@ -23,7 +23,6 @@ Page({
             totalTasks: '0', // 总任务数
             completedTasks: '0', // 已完成任务
             pendingTasks: '0', // 待完成任务
-            workDays: '0' // 累计工作天数
         },
 
         // 功能菜单
@@ -77,30 +76,64 @@ Page({
     },
     onLoad() {
         // 页面加载时尝试获取用户信息
-        this.loadUserInfo();
+        this.loadUserInfo(0);
         // 获取最后登录时间
         this.getLastLoginTime();
     },
 
     onShow() {
         // 页面显示时刷新用户信息
-        this.loadUserInfo();
+        this.loadUserInfo(1);
     },
 
     // 加载用户信息
-    loadUserInfo() {
+    loadUserInfo(type) {
         // 先从缓存中读取用户信息
         const userInfo = wx.getStorageSync('userInfo');
         if (userInfo) {
             this.setData({
                 'userInfo': userInfo
             });
+            if (type == '0') {
+                this.loadRwList();
+            }
         } else {
             // 如果没有缓存，则使用默认信息
             this.setDefaultUserInfo();
         }
     },
+    loadRwList() {
+        // 构造符合WxyhEntity结构的对象
+        const wxyhEntity = {
+            id: this.data.userInfo.userId
+        };
+        //  调用后台接口
+        api.getMyRwList(wxyhEntity).then(responseData => {
+            wx.hideLoading();
+            const zs = responseData.data.zs;
+            const jx = responseData.data.jx;
+            this.setData({
+                'statistics': {
+                    totalTasks: zs, // 总任务数
+                    completedTasks: zs - jx, // 已完成任务
+                    pendingTasks: jx, // 待完成任务
+                }
+            });
 
+        }).catch(error => {
+            wx.hideLoading();
+            if (error.type === 'empty') {
+                wx.showToast({
+                    title: '数据不存在!',
+                    icon: 'none',
+                    duration: 3000
+                });
+            } else {
+                // 根据错误类型显示不同的提示
+                api.handleApiError(error);
+            }
+        });
+    },
     // 设置默认用户信息
     setDefaultUserInfo() {
         this.setData({
@@ -122,6 +155,7 @@ Page({
     closeEditModal() {
         this.setData({
             showEditModal: false,
+            password: '',
             phoneOrNo: ''
         });
     },
@@ -132,7 +166,6 @@ Page({
         })
     },
     updateUser() {
-
         // 获取输入的值
         var editName = this.data.editName;
         if (!editName) {
@@ -142,9 +175,13 @@ Page({
         if (!editPhone) {
             editPhone = this.data.userInfo.phoneNumber
         }
+        var editPassword = this.data.editPassword;
+        if (!editPassword) {
+            editPassword = this.data.userInfo.password
+        }
         var editAvatarUrl = this.data.editAvatarUrl;
         console.log('用户输入的值:', editName, editPhone, editAvatarUrl);
-        if (!editName || !editPhone || !editAvatarUrl) {
+        if (!editName || !editPhone || !editPassword || !editAvatarUrl) {
             wx.showToast({
                 title: '输入的值不能为空',
                 icon: 'none',
@@ -170,7 +207,14 @@ Page({
             });
             return;
         }
-
+        if (editPassword.length > 6) {
+            wx.showToast({
+                title: '登录密码不能大于6个字',
+                icon: 'none',
+                duration: 2000
+            });
+            return;
+        }
         // 将临时文件保存为本地文件
         wx.saveFile({
             tempFilePath: editAvatarUrl,
@@ -182,6 +226,7 @@ Page({
                 // 构造符合WxyhEntity结构的对象
                 const wxyhEntity = {
                     phone: editPhone,
+                    pasword: editPassword,
                     nickname: editName,
                     avatar: editAvatarUrl,
                     id: this.data.userInfo.userId
@@ -230,13 +275,14 @@ Page({
     closeLoginModal() {
         this.setData({
             showLoginModal: false,
+            password: '',
             phoneOrNo: ''
         });
     },
     checkUser() {
         // 获取输入的值
         const phoneOrNo = this.data.phoneOrNo;
-        console.log('用户输入的值:', phoneOrNo);
+        const password = this.data.password;
         // 验证输入是否为空
         if (!phoneOrNo) {
             wx.showToast({
@@ -246,9 +292,19 @@ Page({
             });
             return;
         }
+        // 验证输入是否为空
+        if (!password) {
+            wx.showToast({
+                title: '请输入登录密码',
+                icon: 'none',
+                duration: 2000
+            });
+            return;
+        }
         // 构造符合WxyhEntity结构的对象
         const wxyhEntity = {
             phone: phoneOrNo,
+            password: password,
             employeeNo: phoneOrNo
         };
         // 校验用户是否存在
@@ -287,7 +343,7 @@ Page({
             wx.hideLoading();
             if (error.type === 'empty') {
                 wx.showToast({
-                    title: '当前手机号/工号下的用户不存在!',
+                    title: '当前用户不存在/登录密码错误!',
                     icon: 'none',
                     duration: 3000
                 });
@@ -348,10 +404,22 @@ Page({
                 });
                 break;
             case 2:
-                // 我的收藏
-                wx.switchTab({
-                    url: '/pages/query/query',
-                });
+                // 我的收藏 - 跳转到查询页面并传递参数
+                const userInfo = wx.getStorageSync('userInfo');
+                if (userInfo && userInfo.userId) {
+                    // 使用 redirectTo 或 navigateTo，以便传递参数
+                    wx.switchTab({
+                        url: '/pages/query/query?showFavorites=true&userId=' + userInfo.userId,
+                    });
+                } else {
+                    wx.showToast({
+                        title: '请先登录',
+                        icon: 'none',
+                        duration: 2000
+                    });
+                    // 如果没有登录，跳转到登录
+                    this.toLogin();
+                }
                 break;
                 // case 3:
                 //     // 工作统计

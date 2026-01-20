@@ -37,7 +37,7 @@
       <text class="current-time">{{currentTime}}</text>
     </view>
     <view class="refresh-btn" bindtap="onRefresh">
-      <text class="refresh-icon">🔄</text>
+      <!-- <text class="refresh-icon">🔄</text> -->
     </view>
   </view>
   

@@ -7,7 +7,6 @@ Page({
     data: {
         // 搜索相关
         searchValue: '',
-        showSearchTips: true,
         // 分页参数
         currentPage: 1,
         pageSize: 10,
@@ -115,7 +114,8 @@ Page({
         // 构造符合结构的对象
         const params = {
             "filter": {
-                "jjgxbglId": this.data.productInfo.jjgxbgl.id
+                "jjgxbglId": this.data.productInfo.jjgxbgl.id,
+                "xh": this.data.searchValue
             },
             "page": {
                 "pageNum": this.data.currentPage,
@@ -157,9 +157,19 @@ Page({
     // 行点击事件
     onRowClick(e) {
         const item = e.currentTarget.dataset.item;
+        const pc = item.pc;
+        if (pc == '换刀/调试') {
+            wx.showToast({
+                title: '换刀/调试不需要填写',
+                icon: 'none'
+            });
+            return;
+        }
         // 直接调用API获取检查记录，不再通过单独的loadCheckRecords函数
         const params = {
-            "jjgxjcblId": this.data.productInfo.id, // 机加工序检查表ID
+            "jjgxjcb": {
+                "id": this.data.productInfo.id, // 机加工序检查表ID
+            },
             "jjgxxqbglId": item.id // 机加工序详情表ID
         };
         // 显示加载中
@@ -268,8 +278,8 @@ Page({
                     checkTime: existingRecord.jcsj || existingRecord.checkTime || '', // 检查时间
                     workpieceStatus: existingRecord.gjzt || existingRecord.workpieceStatus || '首件' // 工件状态
                 },
-                status: ( existingRecord.pdjg || existingRecord.result) ? 
-                ( existingRecord.pdjg || existingRecord.result) : '未填写'
+                status: (existingRecord.pdjg || existingRecord.result) ?
+                    (existingRecord.pdjg || existingRecord.result) : '未填写'
             };
         } else {
             // 没有记录，创建空的填空项

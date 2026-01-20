@@ -25,7 +25,7 @@ const ENV = {
     
     // 测试环境
     [ENV.TEST]: {
-      BASE_URL: 'http://test-api.example.com',
+      BASE_URL: 'http://192.168.1.100:8080',
       API_PREFIX: '/wechat',
       TIMEOUT: 20000, // 20秒
       DEBUG: true
@@ -33,7 +33,7 @@ const ENV = {
     
     // 生产环境
     [ENV.PROD]: {
-      BASE_URL: 'https://api.example.com',
+      BASE_URL: 'http://192.168.1.100:8080',
       API_PREFIX: '/wechat',
       TIMEOUT: 30000, // 30秒
       DEBUG: false
@@ -118,6 +118,9 @@ const ENV = {
       INFO: '/user/info',              // 用户信息
       CHECK_USER: '/getUserOneByPhoneOrNo',              // 用户信息
       UPDATE: '/updateUser',          // 更新用户信息
+      GETMYRWLIST: '/my/getMyRwList',          // 获取工作详情
+      GETJJTZBLIST: '/jjtzb/getList',          // 获取工作详情
+      GETJJTZBPAGE: '/jjtzb/getPage',          // 获取工作详情
       UPLOAD_AVATAR: '/user/upload-avatar' // 上传头像
     },
     

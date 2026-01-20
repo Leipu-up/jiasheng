@@ -25,15 +25,57 @@ Page({
         addFormData: {
             batchNumber: '', // 批次号
             deviceNumber: '', // 设备号
+            date: '', // 日期
             time: '' // 时间
         },
         // 收藏相关
         showFavorites: false, // 是否显示收藏列表
         favoriteIds: [], // 收藏的产品ID数组
-        favoriteCount: 0 // 收藏数量
+        favoriteCount: 0, // 收藏数量
+        // 新增：跳转参数
+        jumpToFavorites: false // 是否从我的页面跳转过来
     },
 
-    onLoad() {
+    onLoad(options) {
+        console.log('查询页面加载，参数:', options);
+        
+        // 检查是否有跳转参数
+        if (options && options.showFavorites === 'true') {
+            // 如果是从我的页面跳转过来的，自动进入收藏模式
+            const userId = options.userId;
+            const currentUser = wx.getStorageSync('userInfo');
+            
+            if (currentUser && currentUser.userId === userId) {
+                // 确保是当前用户
+                this.setData({
+                    jumpToFavorites: true,
+                    showFavorites: true
+                });
+                
+                // 初始化收藏数据
+                this.initFavoriteData();
+                
+                // 加载收藏产品
+                if (this.data.showFavorites) {
+                    this.loadFavoriteProducts();
+                } else {
+                    this.loadData();
+                }
+                
+                // 显示提示
+                wx.showToast({
+                    title: '进入收藏模式',
+                    icon: 'success',
+                    duration: 1500
+                });
+                
+                return;
+            }
+        }
+        
+        // 正常加载逻辑
+        this.initFavoriteData();
+        
         if (this.data.showFavorites) {
             this.loadFavoriteProducts();
         } else {
@@ -41,28 +83,113 @@ Page({
         }
     },
 
+    // 获取用户专属的收藏数据键名
+    getFavoriteKey() {
+        const userInfo = wx.getStorageSync('userInfo');
+        if (userInfo && userInfo.userId) {
+            // 登录用户：使用用户ID作为键名的一部分
+            return `product_favorites_${userInfo.userId}`;
+        } else {
+            // 未登录用户：使用临时键名（会有数据共享风险）
+            return 'product_favorites_temp';
+        }
+    },
+
+    // 初始化收藏数据
+    initFavoriteData() {
+        try {
+            // 尝试从新格式加载
+            const favoriteKey = this.getFavoriteKey();
+            const favoriteData = wx.getStorageSync(favoriteKey);
+            
+            if (favoriteData) {
+                // 新格式：包含版本、时间戳等信息
+                this.setData({
+                    favoriteIds: favoriteData.ids || [],
+                    favoriteCount: favoriteData.ids ? favoriteData.ids.length : 0
+                });
+            } else {
+                // 尝试从旧格式迁移
+                const oldFavorites = wx.getStorageSync('product_favorites') || [];
+                if (oldFavorites.length > 0) {
+                    // 迁移到新格式
+                    this.migrateOldFavorites(oldFavorites);
+                } else {
+                    // 初始化空数据
+                    this.setData({
+                        favoriteIds: [],
+                        favoriteCount: 0
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('初始化收藏数据失败:', error);
+            this.setData({
+                favoriteIds: [],
+                favoriteCount: 0
+            });
+        }
+    },
+
+    // 迁移旧格式的收藏数据
+    migrateOldFavorites(oldFavorites) {
+        try {
+            const favoriteKey = this.getFavoriteKey();
+            const favoriteData = {
+                ids: oldFavorites,
+                lastUpdate: Date.now(),
+                version: '2.0'
+            };
+            
+            wx.setStorageSync(favoriteKey, favoriteData);
+            
+            this.setData({
+                favoriteIds: oldFavorites,
+                favoriteCount: oldFavorites.length
+            });
+        } catch (error) {
+            console.error('迁移收藏数据失败:', error);
+        }
+    },
+
     // 加载收藏数据
     loadFavoriteData() {
         try {
-            const favoriteIds = wx.getStorageSync('product_favorites') || [];
-            this.setData({
-                favoriteIds: favoriteIds,
-                favoriteCount: favoriteIds.length
-            });
-            return favoriteIds;
+            const favoriteKey = this.getFavoriteKey();
+            const favoriteData = wx.getStorageSync(favoriteKey);
+            
+            if (favoriteData) {
+                this.setData({
+                    favoriteIds: favoriteData.ids || [],
+                    favoriteCount: favoriteData.ids ? favoriteData.ids.length : 0
+                });
+                return favoriteData.ids || [];
+            }
+            
+            return [];
         } catch (error) {
             console.error('读取收藏数据失败:', error);
             return [];
         }
     },
+
     // 保存收藏数据
     saveFavoriteData(favoriteIds) {
         try {
-            wx.setStorageSync('product_favorites', favoriteIds);
+            const favoriteKey = this.getFavoriteKey();
+            const favoriteData = {
+                ids: favoriteIds,
+                lastUpdate: Date.now(),
+                version: '2.0'
+            };
+            
+            wx.setStorageSync(favoriteKey, favoriteData);
+            
             this.setData({
                 favoriteIds: favoriteIds,
                 favoriteCount: favoriteIds.length
             });
+            
             return true;
         } catch (error) {
             console.error('保存收藏数据失败:', error);
@@ -73,6 +200,14 @@ Page({
             return false;
         }
     },
+
+    // 关闭跳转提示
+    closeJumpTip() {
+        this.setData({
+            jumpToFavorites: false
+        });
+    },
+
     // 输入框输入事件（带防抖）
     onSearchInput(e) {
         const value = e.detail.value.trim();
@@ -93,24 +228,15 @@ Page({
             searchTimer: timer
         });
     },
+
     // 执行查询
     handleSearch() {
         const {
-            searchValue,
             showFavorites
         } = this.data;
         // 如果是收藏模式，直接加载收藏数据
         if (showFavorites) {
             this.loadFavoriteProducts();
-            return;
-        }
-        // 验证输入
-        if (!searchValue) {
-            wx.showToast({
-                title: '请输入产品名称',
-                icon: 'none',
-                duration: 2000
-            });
             return;
         }
         // 重置为第一页
@@ -161,9 +287,16 @@ Page({
 
     //切换收藏数据
     toggleFavoriteMode() {
+        if (!api.checkLogin()) {
+            api.goToLogin();
+            return;
+        }
+        
         this.setData({
             searchValue: '',
+            jumpToFavorites: false // 清除跳转标记
         });
+        
         if (this.data.showFavorites) {
             this.setData({
                 showFavorites: false
@@ -234,13 +367,24 @@ Page({
         api.getProductList(params).then(responseData => {
             wx.hideLoading();
             const page = responseData.data.page;
+            
+            // 获取当前用户的收藏ID
+            const currentFavoriteIds = this.data.favoriteIds;
+            
+            // 为产品列表标记收藏状态
+            const productListWithFavorite = responseData.data.list.map(product => ({
+                ...product,
+                isFavorite: currentFavoriteIds.includes(product.id)
+            }));
+            
             this.setData({
-                productList: responseData.data.list,
+                productList: productListWithFavorite,
                 total: responseData.data.total,
                 totalPages: responseData.data.pageCount,
                 isLoading: false,
                 showSearchTips: false
             });
+            
             // 显示搜索结果统计
             if (this.data.searchValue) {
                 wx.showToast({
@@ -266,8 +410,7 @@ Page({
 
     // 行点击事件 - 显示详情弹窗
     onRowClick(e) {
-        console.log(api.checkLogin());
-        if(!api.checkLogin()){
+        if (!api.checkLogin()) {
             api.goToLogin();
             return;
         }
@@ -285,10 +428,12 @@ Page({
             currentProduct: null
         });
     },
+    
     // 阻止事件冒泡
     stopPropagation() {
         // 什么都不做，只为了阻止事件冒泡
     },
+    
     // 详情弹窗中的 + 按钮点击事件
     onAddButtonClick() {
         // 打开添加弹窗
@@ -298,7 +443,8 @@ Page({
             addFormData: {
                 batchNumber: '',
                 deviceNumber: '',
-                time: this.getCurrentTime()
+                time: this.getCurrentTime(),
+                date: this.getCurrentDate()
             }
         });
     },
@@ -306,12 +452,18 @@ Page({
     // 获取当前时间
     getCurrentTime() {
         const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    },
+    
+    // 获取当前日期
+    getCurrentDate() {
+        const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
+        return `${year}-${month}-${day}`;
     },
 
     // 详情弹窗中的 ⭐️ 按钮点击事件
@@ -406,6 +558,7 @@ Page({
 
     // 添加弹窗输入框变化事件
     onAddFormInput(e) {
+        console.log("输入框变化事件触发");
         const {
             field
         } = e.currentTarget.dataset;
@@ -442,6 +595,13 @@ Page({
             return;
         }
 
+        if (!addFormData.date.trim()) {
+            wx.showToast({
+                title: '请选择日期',
+                icon: 'none'
+            });
+            return;
+        }
         if (!addFormData.time.trim()) {
             wx.showToast({
                 title: '请选择时间',
@@ -456,14 +616,21 @@ Page({
             title: '保存中...',
             mask: true
         });
+        const rq = addFormData.date.trim() + ' ' + addFormData.time.trim()
         // 构造保存的数据
         const saveData = {
             pch: addFormData.batchNumber.trim(),
             sbh: addFormData.deviceNumber.trim(),
-            rq: addFormData.time.trim(),
-            jyy: { id: userInfo.userId },
-            qrz: { id: userInfo.userId },
-            jjgxbgl: { id: currentProduct.id },
+            rq: rq,
+            jyy: {
+                id: userInfo.userId
+            },
+            qrz: {
+                id: userInfo.userId
+            },
+            jjgxbgl: {
+                id: currentProduct.id
+            },
             productInfo: currentProduct
         };
         console.log('保存的数据:', saveData);
@@ -493,6 +660,7 @@ Page({
             addFormData: {
                 batchNumber: '',
                 deviceNumber: '',
+                date: '',
                 time: ''
             }
         });
@@ -547,7 +715,8 @@ Page({
             currentPage: 1,
             total: 0,
             showSearchTips: true,
-            showFavorites: false
+            showFavorites: false,
+            jumpToFavorites: false
         });
     },
 
@@ -556,5 +725,22 @@ Page({
         if (this.data.searchTimer) {
             clearTimeout(this.data.searchTimer);
         }
+        
+        // 清除跳转标记，避免下次进入时误判
+        this.setData({
+            jumpToFavorites: false
+        });
+    },
+    
+    // 页面显示时也检查一下
+    onShow() {
+        // 如果是从收藏跳转过来的，保持状态
+        if (this.data.jumpToFavorites) {
+            // 不需要重新加载，保持当前状态
+            return;
+        }
+        
+        // 否则正常加载收藏数据
+        this.initFavoriteData();
     }
 });

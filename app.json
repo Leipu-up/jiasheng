@@ -6,6 +6,7 @@
         "pages/query/query",
         "pages/work/work",
         "pages/workDetail/workDetail",
+        "pages/notice/notice",
         "pages/my/my"
     ],
     "window": {

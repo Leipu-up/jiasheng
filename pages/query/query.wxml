@@ -1,7 +1,7 @@
 <!-- 搜索区域 -->
 <view class="search-section">
     <view class="search-wrapper">
-        <input class="search-input" placeholder="输入产品名称" placeholder-class="placeholder" value="{{searchValue}}"
+        <input class="search-input" placeholder="输入工序名称" placeholder-class="placeholder" value="{{searchValue}}"
             bindinput="onSearchInput" bindconfirm="handleSearch" confirm-type="search" />
         <button class="action-btn favorite-btn {{showFavorites ? 'active' : ''}}" style="height: 60rpx;"
             bindtap="toggleFavoriteMode">
@@ -154,8 +154,16 @@
             </view>
 
             <view class="form-item">
+                <text class="form-label">日期：</text>
+                <picker mode="date" value="{{addFormData.date}}" bindchange="onAddFormInput" data-field="date">
+                    <view class="time-picker">
+                        {{addFormData.date || '请选择日期'}}
+                    </view>
+                </picker>
+            </view>
+            <view class="form-item">
                 <text class="form-label">时间：</text>
-                <picker mode="datetime" value="{{addFormData.time}}" bindchange="onAddFormInput" data-field="rq">
+                <picker mode="time" value="{{addFormData.time}}" bindchange="onAddFormInput" data-field="time">
                     <view class="time-picker">
                         {{addFormData.time || '请选择时间'}}
                     </view>

@@ -9,7 +9,6 @@ Page({
         searchKeyword: '', // 产品型号/批次号搜索关键词
         // 日期筛选
         startDate: '', // 开始日期
-        endDate: '', // 结束日期
         // 分页参数
         currentPage: 1,
         pageSize: 10, // 每页10条
@@ -28,6 +27,8 @@ Page({
             model: '', // 产品型号
             sbh: '', // 设备号
             pch: '', // 批次号
+            date: '', // 日期
+            time: '', // 时间
         }
     },
 
@@ -48,51 +49,24 @@ Page({
         const today = this.formatDate(new Date());
         this.setData({
             startDate: today,
-            endDate: today,
             currentPage: 1
         }, () => {
             this.handleSearch();
         });
     },
 
-    // 设置近一周
-    setLastWeek() {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 7);
-
-        this.setData({
-            startDate: this.formatDate(startDate),
-            endDate: this.formatDate(endDate),
-            currentPage: 1
-        }, () => {
-            this.handleSearch();
-        });
-    },
-
-    // 设置近一月
-    setLastMonth() {
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 1);
-
-        this.setData({
-            startDate: this.formatDate(startDate),
-            endDate: this.formatDate(endDate),
-            currentPage: 1
-        }, () => {
-            this.handleSearch();
-        });
-    },
 
     // 清空日期
     clearDates() {
+        const today = this.formatDate(new Date());
         this.setData({
-            startDate: '',
-            endDate: '',
+            startDate: today,
             currentPage: 1,
+            searchKeyword: '',
             hasSearchCondition: false,
             workList: []
+        }, () => {
+            this.handleSearch();
         });
     },
 
@@ -113,15 +87,6 @@ Page({
     onStartDateChange(e) {
         this.setData({
             startDate: e.detail.value,
-            currentPage: 1
-        }, () => {
-            this.handleSearch();
-        });
-    },
-
-    onEndDateChange(e) {
-        this.setData({
-            endDate: e.detail.value,
             currentPage: 1
         }, () => {
             this.handleSearch();
@@ -151,22 +116,12 @@ Page({
     // 执行查询
     handleSearch() {
         const {
-            startDate,
-            endDate
+            startDate
         } = this.data;
         // 验证日期条件
-        if (!startDate || !endDate) {
+        if (!startDate) {
             wx.showToast({
-                title: '请选择日期范围',
-                icon: 'none',
-                duration: 2000
-            });
-            return;
-        }
-        // 验证日期合理性
-        if (startDate > endDate) {
-            wx.showToast({
-                title: '开始日期不能晚于结束日期',
+                title: '请选择日期',
                 icon: 'none',
                 duration: 2000
             });
@@ -192,8 +147,9 @@ Page({
         const params = {
             "filter": {
                 "pch": this.data.searchKeyword,
+                "rq": this.data.startDate,
                 "jyy": {
-                    id: userInfo ? userInfo.id : '1234567899876543241'
+                    id: userInfo.userId ? userInfo.userId : '1234567899876543241'
                 }
             },
             "page": {
@@ -275,13 +231,19 @@ Page({
     // 显示编辑弹窗
     showEditModal(index, item) {
         const _this = item.jjgxbgl.jjcpbgl.cpmc + '   ' + item.jjgxbgl.jjcpbgl.cpxh
+        const rq = item.rq;
+        const parts = rq.split(" ");
+        const date = parts[0]; // "2026-01-19"
+        const time = parts[1]; // "12:36"
         this.setData({
             showEditModal: true,
             editFormData: {
                 id: item.id,
                 model: _this,
                 sbh: item.sbh,
-                pch: item.pch
+                pch: item.pch,
+                date: date,
+                time: time
             }
         });
     },
@@ -315,7 +277,6 @@ Page({
         console.log(saveData);
         //  调用后台接口
         api.deleteWork(saveData).then(responseData => {
-            console.log(responseData);
             wx.hideLoading();
             wx.showToast({
                 title: '删除成功',
@@ -364,10 +325,12 @@ Page({
             });
             return;
         }
+        const rq = editFormData.date.trim() + ' ' + editFormData.time.trim()
         // 构造保存的数据
         const jjgxjcbEntity = {
             pch: editFormData.pch.trim(),
             sbh: editFormData.sbh.trim(),
+            rq: rq,
             id: editFormData.id
         };
         // 显示保存中状态
@@ -378,7 +341,6 @@ Page({
         console.log('修改请求的参数:', jjgxjcbEntity);
         //  调用后台接口
         api.updateWork(jjgxjcbEntity).then(responseData => {
-            console.log(responseData);
             wx.hideLoading();
             wx.showToast({
                 title: '修改成功',
@@ -403,7 +365,9 @@ Page({
                 id: '',
                 model: '',
                 sbh: '',
-                pch: ''
+                pch: '',
+                date: '',
+                time: ''
             }
         });
     },

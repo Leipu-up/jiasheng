@@ -1,7 +1,8 @@
 <!-- 搜索区域 -->
 <view class="search-section">
     <view class="search-wrapper">
-        <input class="search-input" placeholder="输入产品型号或批次号" placeholder-class="placeholder" value="{{searchKeyword}}"
+        <input class="search-input" placeholder="请输入批次号" placeholder-class="placeholder"
+         value="{{searchKeyword}}"
             bindinput="onKeywordInput" bindconfirm="handleSearch" confirm-type="search" />
         <button class="search-btn" type="primary" bindtap="handleSearch">查询</button>
     </view>
@@ -10,30 +11,20 @@
     <view class="date-filter-section">
         <view class="date-filter-row">
             <view class="date-filter-item">
-                <text class="date-label">开始日期：</text>
+                <text class="date-label">查询日期：</text>
                 <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
                     <view class="date-picker {{startDate ? 'selected' : ''}}">
                         {{startDate || '请选择'}}
                     </view>
                 </picker>
             </view>
-
-            <view class="date-filter-item">
-                <text class="date-label">结束日期：</text>
-                <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
-                    <view class="date-picker {{endDate ? 'selected' : ''}}">
-                        {{endDate || '请选择'}}
-                    </view>
-                </picker>
-            </view>
+            <view class="date-actions">
+            <button class="date-btn clear-btn" bindtap="clearDates">重置</button>
+        </view>
+            
         </view>
 
-        <view class="date-actions">
-            <button class="date-btn today-btn" bindtap="setToday">今天</button>
-            <button class="date-btn week-btn" bindtap="setLastWeek">近一周</button>
-            <button class="date-btn month-btn" bindtap="setLastMonth">近一月</button>
-            <button class="date-btn clear-btn" bindtap="clearDates">清空</button>
-        </view>
+        
     </view>
 </view>
 
@@ -45,7 +36,7 @@
         <text class="empty-text">
             {{hasSearchCondition ? '未找到相关工作数据' : '请设置查询条件后查看'}}
         </text>
-        <text class="empty-subtext">尝试调整日期范围或搜索关键词</text>
+        <text class="empty-subtext">尝试调整日期或搜索关键词</text>
     </view>
 
     <!-- 数据列表 -->
@@ -82,9 +73,9 @@
                 <!-- 批次号 -->
                 <view class="row-cell batch-cell">
                     <text class="batch-text">{{item.rq}}</text>
-                    <text class="batch-status {{item.status === 'completed' ? 'completed' : 'processing'}}"
+                    <text class="batch-status {{item.status === '1' ? 'completed' : 'processing'}}"
                         wx:if="{{item.status}}">
-                        {{item.status === 'completed' ? '已完成' : '进行中'}}
+                        {{item.status === '1' ? '已完成' : '进行中'}}
                     </text>
                 </view>
 
@@ -134,7 +125,22 @@
                 <input class="form-input" placeholder="请输入设备号" value="{{editFormData.sbh}}" bindinput="onEditFormInput"
                     data-field="sbh" />
             </view>
-           
+            <view class="form-item">
+                <text class="form-label">日期：</text>
+                <picker mode="date" value="{{addFormData.date}}" bindchange="onEditFormInput" data-field="date">
+                    <view class="time-picker">
+                        {{editFormData.date || '请选择日期'}}
+                    </view>
+                </picker>
+            </view>
+            <view class="form-item">
+                <text class="form-label">时间：</text>
+                <picker mode="time" value="{{addFormData.time}}" bindchange="onEditFormInput" data-field="time">
+                    <view class="time-picker">
+                        {{editFormData.time || '请选择时间'}}
+                    </view>
+                </picker>
+            </view>
         </view>
 
         <view class="modal-actions">

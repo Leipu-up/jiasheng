@@ -1,3 +1,8 @@
+// 引入API服务
+const {
+    api
+} = require('../../utils/app');
+
 Page({
     data: {
         // 轮播图数据
@@ -26,38 +31,8 @@ Page({
                 link: ''
             }
         ],
-
         // 通知公告数据
-        noticeList: [{
-                id: 1,
-                title: '关于2024年第一季度安全生产大检查的通知',
-                time: '2024-03-15',
-                isNew: true,
-                content: '为进一步加强安全生产管理，消除安全隐患，公司决定于3月20日至3月25日开展第一季度安全生产大检查。'
-            },
-            {
-                id: 2,
-                title: '质量管理制度更新公告',
-                time: '2024-03-10',
-                isNew: true,
-                content: '根据最新国家标准，公司质量管理制度已更新，请各部门组织学习并严格执行。'
-            },
-            {
-                id: 3,
-                title: '优秀员工评选结果公示',
-                time: '2024-03-05',
-                isNew: false,
-                content: '2023年度优秀员工评选结果已出，共评选出10名优秀员工，详情请查看公告栏。'
-            },
-            {
-                id: 4,
-                title: '关于启用新生产管理系统的通知',
-                time: '2024-02-28',
-                isNew: false,
-                content: '为提高生产效率，公司决定从3月1日起启用新的生产管理系统，请各位员工及时学习使用。'
-            }
-        ],
-
+        noticeList: [],
         // 功能模块
         functionModules: [{
                 id: 1,
@@ -92,7 +67,6 @@ Page({
                 enabled: false
             }
         ],
-
         // 快捷操作
         quickActions: [{
                 id: 1,
@@ -119,7 +93,6 @@ Page({
                 action: 'scanOut'
             }
         ],
-
         // 数据统计
         statistics: {
             todayProduction: 1560,
@@ -129,10 +102,8 @@ Page({
             equipmentUtilization: 85.2,
             pendingTasks: 12
         },
-
         // 当前时间
         currentTime: '',
-
         // 用户信息
         userInfo: {
             name: '未登录',
@@ -160,11 +131,41 @@ Page({
     initPage() {
         this.updateCurrentTime();
         this.loadUserInfo();
-
+        this.loadNoticeList();
         // 启动时间更新定时器
         this.startTimeTimer();
     },
-
+    loadNoticeList(){
+         // 构造符合结构的对象
+         const params = {
+            "filter": {
+                "title": ""
+            },
+            "page": {
+                "pageNum": 1,
+                "pageSize": 3
+            }
+        };
+        //  调用后台接口
+        api.getJjtzbPage(params).then(responseData => {
+            wx.hideLoading();
+            this.setData({
+                noticeList: responseData.data.list,
+            });
+        }).catch(error => {
+            wx.hideLoading();
+            if (error.type === 'empty') {
+                wx.showToast({
+                    title: '数据不存在!',
+                    icon: 'none',
+                    duration: 3000
+                });
+            } else {
+                // 根据错误类型显示不同的提示
+                api.handleApiError(error);
+            }
+        });
+    },
     // 更新时间
     updateCurrentTime() {
         const now = new Date();
@@ -340,8 +341,9 @@ Page({
 
     // 查看所有通知
     viewAllNotices() {
+        console.log("333");
         wx.navigateTo({
-            url: '/pages/notice/list/list'
+            url: '/pages/notice/notice'
         });
     },
 

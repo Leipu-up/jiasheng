@@ -277,7 +277,6 @@ page {
 .row-cell.specification {
     width: 200rpx;
     flex-shrink: 0;
-    padding-right: 20rpx;
 }
 
 .spec-text {

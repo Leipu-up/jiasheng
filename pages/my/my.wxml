@@ -170,6 +170,13 @@
                     bindinput="onFormInput" />
             </view>
         </view>
+        <view class="modal-content">
+            <view class="form-item">
+                <text class="form-label">登录密码(6位)：</text>
+                <input class="form-input" placeholder="请输入登录密码" value="{{password}}" data-field="password"
+                    bindinput="onFormInput" />
+            </view>
+        </view>
         <view class="modal-actions">
             <button class="action-btn cancel-btn" bindtap="closeLoginModal">取消</button>
             <button class="action-btn save-btn" bindtap="checkUser">登录</button>
@@ -198,6 +205,11 @@
             <view class="form-item">
                 <text class="form-label">手机号：</text>
                 <input class="form-input" placeholder="请输入手机号" value="{{userInfo.phoneNumber}}" data-field="editPhone"
+                    bindinput="onFormInput" />
+            </view>
+            <view class="form-item">
+                <text class="form-label">登录密码：</text>
+                <input class="form-input" placeholder="请输入登录密码：" value="{{userInfo.password}}" data-field="editPassword"
                     bindinput="onFormInput" />
             </view>
         </view>
