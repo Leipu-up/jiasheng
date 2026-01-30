@@ -341,7 +341,6 @@ Page({
 
     // 查看所有通知
     viewAllNotices() {
-        console.log("333");
         wx.navigateTo({
             url: '/pages/notice/notice'
         });
@@ -381,7 +380,6 @@ Page({
 
     // 搜索功能
     onSearch() {
-        console.log("121");
         wx.switchTab({
             url: '/pages/query/query'
         });

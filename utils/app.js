@@ -258,7 +258,7 @@ class ApiService {
     }
 
     getMyRwList(params = {}) {
-        const url = this.getUrl(this.endpoints.USER.GETJJTZBLIST);
+        const url = this.getUrl(this.endpoints.USER.GETMYRWLIST);
         return http.post(url, params, {
             showLoading: true,
             loadingText: '加载中...'
@@ -274,7 +274,7 @@ class ApiService {
     }
 
     getJjtzbList(params = {}) {
-        const url = this.getUrl(this.endpoints.USER.GETMYRWLIST);
+        const url = this.getUrl(this.endpoints.USER.GETJJTZBLIST);
         return http.post(url, params, {
             showLoading: true,
             loadingText: '加载中...'

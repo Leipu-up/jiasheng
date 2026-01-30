@@ -76,14 +76,14 @@ Page({
     },
     onLoad() {
         // 页面加载时尝试获取用户信息
-        this.loadUserInfo(0);
+        this.loadUserInfo(1);
         // 获取最后登录时间
         this.getLastLoginTime();
     },
 
     onShow() {
         // 页面显示时刷新用户信息
-        this.loadUserInfo(1);
+        this.loadUserInfo(0);
     },
 
     // 加载用户信息
@@ -110,8 +110,8 @@ Page({
         //  调用后台接口
         api.getMyRwList(wxyhEntity).then(responseData => {
             wx.hideLoading();
-            const zs = responseData.data.zs;
-            const jx = responseData.data.jx;
+            const zs = responseData.data.zs || 0;
+            const jx = responseData.data.jx || 0;
             this.setData({
                 'statistics': {
                     totalTasks: zs, // 总任务数
@@ -356,6 +356,7 @@ Page({
 
     // 获取最后登录时间
     getLastLoginTime() {
+        console.log("getLastLoginTime");
         const lastLogin = wx.getStorageSync('lastLoginTime');
         const now = new Date();
 
