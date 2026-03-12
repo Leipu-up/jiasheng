@@ -40,20 +40,20 @@ Page({
                 subTitle: '收藏的产品和工序',
                 url: ''
             },
-            // {
-            //     id: 3,
-            //     icon: '📊',
-            //     title: '工作统计',
-            //     subTitle: '查看工作数据报表',
-            //     url: ''
-            // },
-            // {
-            //     id: 4,
-            //     icon: '⚙️',
-            //     title: '设置',
-            //     subTitle: '应用设置和偏好',
-            //     url: ''
-            // }
+            {
+                id: 3,
+                icon: '📊',
+                title: '我的外协受入检查',
+                subTitle: '查看外协受入检查',
+                url: ''
+            },
+            {
+                id: 4,
+                icon: '⚙️',
+                title: '我的材料受入检查',
+                subTitle: '查看材料受入检查',
+                url: ''
+            }
         ],
 
         // 版本信息
@@ -396,7 +396,7 @@ Page({
         const item = this.data.menuItems.find(item => item.id === itemId);
 
         if (!item) return;
-
+        const userInfo = wx.getStorageSync('userInfo');
         switch (itemId) {
             case 1:
                 // 我的工作
@@ -406,7 +406,6 @@ Page({
                 break;
             case 2:
                 // 我的收藏 - 跳转到查询页面并传递参数
-                const userInfo = wx.getStorageSync('userInfo');
                 if (userInfo && userInfo.userId) {
                     // 使用 redirectTo 或 navigateTo，以便传递参数
                     wx.switchTab({
@@ -422,18 +421,18 @@ Page({
                     this.toLogin();
                 }
                 break;
-                // case 3:
-                //     // 工作统计
-                //     wx.navigateTo({
-                //         url: '/pages/my/statistics/statistics',
-                //     });
-                //     break;
-                // case 4:
-                //     // 设置
-                //     wx.navigateTo({
-                //         url: '/pages/my/settings/settings',
-                //     });
-                //     break;
+            case 3:
+                // 外协受入检查
+                wx.navigateTo({
+                    url: '/pages/wxjc/wxjc',
+                });
+                break;
+            case 4:
+                // 材料受入检查
+                wx.navigateTo({
+                    url: '/pages/cljc/cljc',
+                });
+                break;
             default:
                 break;
         }

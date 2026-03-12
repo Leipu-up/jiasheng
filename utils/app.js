@@ -108,6 +108,14 @@ class ApiService {
         });
     }
 
+    saveJjgxjcdjb(data) {
+        const url = this.getUrl(this.endpoints.WORK.SAVEJJGXJCDJB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
     /**
      * 创建工作记录
      * @param {Object} data - 工作数据
@@ -216,6 +224,155 @@ class ApiService {
             loadingText: '添加工序检查表...'
         });
     }
+
+    
+    // ========== 外协检查相关API ==========
+
+    /**
+     * 获取产品列表
+     * @param {Object} params - 查询参数
+     * @returns {Promise}
+     */
+    getWxjcList(params = {}) {
+        const url = this.getUrl(this.endpoints.WXJC.LIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载外协检查列表...'
+        });
+    }
+
+    /**
+     * 获取产品详情
+     * @param {string} productId - 产品ID
+     * @returns {Promise}
+     */
+    getWxjcDetail(productId) {
+        const url = this.getUrl(this.endpoints.WXJC.DETAIL);
+        return http.get(url, {
+            productId
+        }, {
+            showLoading: true,
+            loadingText: '加载外协检查详情...'
+        });
+    }
+
+    /**
+     * 搜索产品
+     * @param {Object} params - 搜索参数
+     * @returns {Promise}
+     */
+    searchWxjc(params) {
+        const url = this.getUrl(this.endpoints.WXJC.SEARCH);
+        return http.get(url, params, {
+            showLoading: true,
+            loadingText: '搜索外协检查...'
+        });
+    }
+
+    /**
+     * 更新用户信息
+     * @param {Object} userData - 用户数据
+     * @returns {Promise}
+     */
+    saveWxjc(params) {
+        const url = this.getUrl(this.endpoints.WXJC.SAVE);
+        return http.put(url, params, {
+            showLoading: true,
+            loadingText: '添加外协检查报告...'
+        });
+    }
+
+    
+    /**
+     * 获取工作列表
+     * @param {Object} params - 查询参数
+     * @returns {Promise}
+     */
+    getWxjcjgbWorkList(params = {}) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    /**
+     * 获取工作详情
+     * @param {string|number} id - 工作ID
+     * @returns {Promise}
+     */
+    getWxjcjgbWorkDetailList(params = {}) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBDETAILLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    getWxjcjgbJjgxjcjgbList(params = {}) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBJJGXJCJGBLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    updateWxjcjgbCheckRecord(data) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBSAVEJJGXJCJGB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    updateJjwxjcjgb(data) {
+        const url = this.getUrl(this.endpoints.WXJC.UPDATEJJWXJCJGB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    /**
+     * 创建工作记录
+     * @param {Object} data - 工作数据
+     * @returns {Promise}
+     */
+    createWxjcjgbWork(data) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBCREATE);
+        return http.post(url, data, {
+            showLoading: true,
+            loadingText: '创建中...'
+        });
+    }
+
+    /**
+     * 更新工作记录
+     * @param {string|number} id - 工作ID
+     * @param {Object} data - 更新数据
+     * @returns {Promise}
+     */
+    updateWxjcjgbWork(data) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBUPDATE);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    /**
+     * 删除工作记录
+     * @param {string|number} id - 工作ID
+     * @returns {Promise}
+     */
+    deleteWxjcjgbWork(params) {
+        const url = this.getUrl(this.endpoints.WXJC.WXJCJGBDELETE);
+        return http.put(url, params, {
+            showLoading: true,
+            loadingText: '删除中...'
+        });
+    }
+
 
     // ========== 用户相关API ==========
 

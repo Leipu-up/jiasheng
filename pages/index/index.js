@@ -37,15 +37,15 @@ Page({
         functionModules: [{
                 id: 1,
                 icon: '🏭',
-                title: '生产管理',
+                title: '外协受入检查',
                 color: '#667eea',
                 description: '生产计划、进度跟踪',
-                enabled: false
+                enabled: true
             },
             {
                 id: 2,
                 icon: '📊',
-                title: '质量管理',
+                title: '材料受入检查',
                 color: '#52c41a',
                 description: '质量检验、统计分析',
                 enabled: true
@@ -252,9 +252,14 @@ Page({
         }
         // 功能已开放，根据ID跳转
         switch (moduleId) {
-            case 2: // 质量管理
-                wx.switchTab({
-                    url: '/pages/work/work'
+            case 1: // 外协受入检查
+            wx.navigateTo({
+                url: '/pages/wxjcQuery/wxjcQuery'
+            });
+                break;
+            case 2: // 材料受入检查
+                wx.navigateTo({
+                    url: '/pages/cljcQuery/cljcQuery'
                 });
                 break;
             default:

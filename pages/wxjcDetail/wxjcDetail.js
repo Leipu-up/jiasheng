@@ -17,15 +17,20 @@ Page({
         isLoading: false,
         productInfo: {
             pch: '',
+            phsl: '',
+            ccslwg: '',
+            ccslcc: '',
+            pdjg: '',
+            bz: '',
             id: '',
-            jjgxbgl: {
+            jjwxjcb: {
                 jjcpbgl: {
                     cpbb: "",
                     cpmc: "",
                     cpxh: "",
                 },
                 id: '',
-                gxmc: '',
+                gysmc: '',
             }
         },
         // 防抖相关
@@ -114,8 +119,8 @@ Page({
         // 构造符合结构的对象
         const params = {
             "filter": {
-                "jjgxbglId": this.data.productInfo.jjgxbgl.id,
-                "jjgxjcbId": this.data.productInfo.id, // 机加工序检查表ID
+                "jjwxjcbId": this.data.productInfo.jjwxjcb.id,
+                "jjwxjcjgbId": this.data.productInfo.id, // 机加工序检查表ID
                 "xh": this.data.searchValue
             },
             "page": {
@@ -124,7 +129,7 @@ Page({
             }
         };
         //  调用后台接口
-        api.getWorkDetailList(params).then(responseData => {
+        api.getWxjcjgbWorkDetailList(params).then(responseData => {
             wx.hideLoading();
             const page = responseData.data.page;
             this.setData({
@@ -158,20 +163,12 @@ Page({
     // 行点击事件
     onRowClick(e) {
         const item = e.currentTarget.dataset.item;
-        const pc = item.pc;
-        if (pc == '换刀/调试') {
-            wx.showToast({
-                title: '换刀/调试不需要填写',
-                icon: 'none'
-            });
-            return;
-        }
         // 直接调用API获取检查记录，不再通过单独的loadCheckRecords函数
         const params = {
-            "jjgxjcb": {
+            "jjwxjcjgb": {
                 "id": this.data.productInfo.id, // 机加工序检查表ID
             },
-            "jjgxxqbglId": item.id // 机加工序详情表ID
+            "jjwxjcxxbId": item.id // 机加工序详情表ID
         };
         // 显示加载中
         wx.showLoading({
@@ -180,7 +177,7 @@ Page({
         });
 
         // 直接调用API
-        api.getJjgxjcjgbList(params).then(responseData => {
+        api.getWxjcjgbJjgxjcjgbList(params).then(responseData => {
             wx.hideLoading();
             console.log('检查记录响应:', responseData.data);
             let checkRecords = [];
@@ -189,7 +186,7 @@ Page({
                 checkRecords = responseData.data;
             }
             // 根据频次生成填空项，并回填已有数据
-            const blankItems = this.generateBlankItems(item.pc, checkRecords, item.id);
+            const blankItems = this.generateBlankItems(item.ypsl, checkRecords, item.id);
             this.setData({
                 showDetailModal: true,
                 currentProcess: item,
@@ -199,7 +196,7 @@ Page({
         }).catch(error => {
             wx.hideLoading();
             // 出错时生成空白的填空项
-            const blankItems = this.generateBlankItems(item.pc, [], item.id);
+            const blankItems = this.generateBlankItems(item.ypsl, [], item.id);
             this.setData({
                 showDetailModal: true,
                 currentProcess: item,
@@ -208,7 +205,7 @@ Page({
         });
     },
 
-    // 根据频次生成填空项，并回填已有数据 - 确保参数安全
+    // 根据样品数量生成填空项，并回填已有数据 - 确保参数安全
     generateBlankItems(frequency, checkRecords) {
         // 确保 checkRecords 是数组
         if (!Array.isArray(checkRecords)) {
@@ -216,23 +213,12 @@ Page({
         }
         // 确保 frequency 是字符串
         if (typeof frequency !== 'string') {
-            frequency = '1pcs/6h';
+            frequency = '1';
         }
-        // 解析频次字符串，如 "1pcs/6h"
-        const regex = /(\d+)pcs\/(\d+)h/;
-        const match = frequency.match(regex);
+        const num1 = parseInt(frequency);
         let items = [];
-        if (!match) {
-            // 如果没有匹配到格式，默认生成1个填空
-            items = [this.createBlankItem(1, checkRecords)];
-        } else {
-            const pcs = parseInt(match[1]); // 每X件
-            const hours = parseInt(match[2]); // 每Y小时
-            // 假设一天工作12小时，计算需要的填空数量
-            const blankCount = Math.floor(12 / hours) * pcs;
-            for (let i = 1; i <= blankCount; i++) {
-                items.push(this.createBlankItem(i, checkRecords));
-            }
+        for (let i = 1; i <= num1; i++) {
+            items.push(this.createBlankItem(i, checkRecords));
         }
         return items;
     },
@@ -275,12 +261,9 @@ Page({
                 data: {
                     id: existingRecord.id || '',
                     actualValue: existingRecord.scz || existingRecord.actualValue || '', // 实测值
-                    result: existingRecord.pdjg || existingRecord.result || 'OK', // 判定结果
-                    checkTime: existingRecord.jcsj || existingRecord.checkTime || '', // 检查时间
-                    workpieceStatus: existingRecord.gjzt || existingRecord.workpieceStatus || '工序检验' // 工件状态
                 },
-                status: (existingRecord.pdjg || existingRecord.result) ?
-                    (existingRecord.pdjg || existingRecord.result) : '未填写'
+                status: (existingRecord.scz) ?
+                    (existingRecord.scz) : '未填写'
             };
         } else {
             // 没有记录，创建空的填空项
@@ -356,8 +339,14 @@ Page({
     },
     // 填空弹窗输入事件
     onBlankFormGxInput(e) {
+        const {
+            field
+        } = e.currentTarget.dataset;
+        const {
+            value
+        } = e.detail;
         this.setData({
-            'currentProcess.djscz': e.detail.value
+            [`productInfo.${field}`]: value
         });
     },
     // 工件状态选择
@@ -375,18 +364,23 @@ Page({
         });
     },
     // 保存填空项
-    saveDjscz() {
+    savePdjg() {
         console.log("点击保存");
         const {
-            currentProcess
+            productInfo
         } = this.data;
+        if (!productInfo.pdjg.trim()) {
+            wx.showToast({
+                title: '请输入判定结果',
+                icon: 'none'
+            });
+            return;
+        }
         // 准备保存数据
         const saveData = {
-            "jjgxjcb": {
-                id: this.data.productInfo.id
-            },
-            "jjgxxqbglId": currentProcess.id,
-            djscz: currentProcess.djscz, // 实测值
+            id: this.data.productInfo.id,
+            pdjg: productInfo.pdjg, // 判定结果
+            bz: productInfo.bz, // 备注
         };
         console.log(saveData);
         // 显示加载中
@@ -395,7 +389,7 @@ Page({
             mask: true
         });
         // 调用API保存检查记录
-        api.saveJjgxjcdjb(saveData).then(response => {
+        api.updateJjwxjcjgb(saveData).then(response => {
             this.loadData();
             console.log(this.data.currentProcess);
             wx.showToast({
@@ -428,25 +422,15 @@ Page({
             });
             return;
         }
-        if (!blankFormData.checkTime.trim()) {
-            wx.showToast({
-                title: '请输入检查时间',
-                icon: 'none'
-            });
-            return;
-        }
         // 准备保存数据
         const saveData = {
             id: blankFormData.id, // 如果有ID是修改，没有是新增
             scz: blankFormData.actualValue, // 实测值
-            pdjg: blankFormData.result, // 判定结果
-            jcsj: blankFormData.checkTime, // 检查时间
-            gjzt: blankFormData.workpieceStatus, // 工件状态
-            jjgxjcb: {
+            jjwxjcjgb: {
                 id: productInfo.id, // 机加工序检查表ID
             },
-            jjgxxqbglId: currentProcess.id, // 当前工序ID
-            jjgxbglId: productInfo.jjgxbgl.id // 机加工序表ID
+            jjwxjcxxbId: currentProcess.id, // 当前工序ID
+            jjwxjcbId: productInfo.jjwxjcb.id // 机加工序表ID
         };
         // 显示加载中
         wx.showLoading({
@@ -454,7 +438,7 @@ Page({
             mask: true
         });
         // 调用API保存检查记录
-        api.updateCheckRecord(saveData).then(response => {
+        api.updateWxjcjgbCheckRecord(saveData).then(response => {
             wx.hideLoading();
             // 更新填空项
             const updatedBlankItems = [...blankItems];
@@ -464,12 +448,9 @@ Page({
                 isFilled: true,
                 data: {
                     id: response.data.id || saveData.id,
-                    actualValue: saveData.scz,
-                    result: saveData.pdjg,
-                    checkTime: saveData.jcsj,
-                    workpieceStatus: saveData.gjzt
+                    actualValue: saveData.scz
                 },
-                status: saveData.pdjg === 'OK' ? '(OK)' : '(NG)'
+                status: saveData.scz
             };
             // 直接在这里关闭弹窗，不使用closeBlankModal函数
             this.setData({

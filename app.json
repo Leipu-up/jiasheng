@@ -6,6 +6,12 @@
         "pages/query/query",
         "pages/work/work",
         "pages/workDetail/workDetail",
+        "pages/wxjcQuery/wxjcQuery",
+        "pages/wxjc/wxjc",
+        "pages/wxjcDetail/wxjcDetail",
+        "pages/cljcQuery/cljcQuery",
+        "pages/cljc/cljc",
+        "pages/cljcDetail/cljcDetail",
         "pages/notice/notice",
         "pages/my/my"
     ],
