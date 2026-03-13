@@ -120,6 +120,23 @@ API.ENDPOINTS = {
         UPDATEJJWXJCJGB: '/wxjcjgb/updateJjwxjcjgb', // 更新检查结果表
     },
 
+
+    // 材料检查相关
+    CLJC: {
+        LIST: '/cljc/getPage', // 获取产品列表
+        DETAIL: '/cljc/detail', // 获取产品详情
+        SEARCH: '/cljc/search', // 搜索产品
+        SAVE: '/cljc/saveOne', // 保存工序检查表
+        WXJCJGBLIST: '/cljcjgb/getPage', // 获取工作列表
+        WXJCJGBDETAILLIST: '/cljcjgb/getWorkListPage', // 获取工作详情
+        WXJCJGBCREATE: '/cljcjgb/saveOne', // 创建工序详情表
+        WXJCJGBUPDATE: '/cljcjgb/updateWorkOne', // 更新工序表
+        WXJCJGBDELETE: '/cljcjgb/deleteWorkOne', // 删除工序表
+        WXJCJGBJJGXJCJGBLIST: '/cljcjgb/getJjgxjcjgbList',
+        WXJCJGBSAVEJJGXJCJGB: '/cljcjgb/saveJjgxjcjgb', // 更新检查结果表
+        UPDATEJJWXJCJGB: '/cljcjgb/updateJjwxjcjgb', // 更新检查结果表
+    },
+
     // 质量相关
     QUALITY: {
         LIST: '/quality/list', // 质量检验列表

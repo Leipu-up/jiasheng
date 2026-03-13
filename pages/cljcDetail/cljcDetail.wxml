@@ -8,14 +8,15 @@
     <view class="header-info">
         <text class="header-title">外协检查详情</text>
         <view class="product-info">
-            <text class="info-item">产品名称：{{productInfo.jjwxjcb.jjcpbgl.cpmc}}</text>
-            <text class="info-item">产品型号：{{productInfo.jjwxjcb.jjcpbgl.cpxh}}</text>
-            <text class="info-item">版本号：{{productInfo.jjwxjcb.jjcpbgl.cpbb}}</text>
-            <text class="info-item">供应商名称: {{productInfo.jjwxjcb.gysmc}}</text>
-            <text class="info-item">批次号：{{productInfo.pch}}</text>
+            <text class="info-item">材料名称：{{productInfo.jjcljcb.jjcpbgl.cpmc}}</text>
+            <text class="info-item">材料型号：{{productInfo.jjcljcb.jjcpbgl.cpxh}}</text>
+            <text class="info-item">材料尺寸：{{productInfo.jjcljcb.jjcpbgl.cpbb}}</text>
+            <text class="info-item">供应商名称: {{productInfo.jjcljcb.gysmc}}</text>
+            <text class="info-item">批货号：{{productInfo.pch}}</text>
             <text class="info-item">批货数量：{{productInfo.phsl}}</text>
-            <text class="info-item">抽查数量外观：{{productInfo.ccslwg}}</text>
-            <text class="info-item">抽查数量尺寸：{{productInfo.ccslcc}}</text>
+            <text class="info-item">炉号：{{productInfo.lh}}</text>
+            <text class="info-item">受入日：{{productInfo.srr}}</text>
+            <text class="info-item">检查日：{{productInfo.jcr}}</text>
             <view class="detail-item">
                 <text class="info-item">判定结果：</text>
                 <input class="info-item" bindinput="onBlankFormGxInput" data-field="pdjg"
@@ -61,7 +62,7 @@
         <!-- 表头 -->
         <view class="table-header">
             <view class="header-cell serial-number">序号</view>
-            <view class="header-cell specification">规范/公差</view>
+            <view class="header-cell specification">尺寸/参数</view>
             <view class="header-cell frequency">样品数量</view>
             <view class="header-cell process-name">仪器</view>
         </view>
@@ -118,17 +119,21 @@
 <view class="modal-overlay" wx:if="{{showDetailModal}}">
     <view class="detail-modal" catchtap="">
         <view class="modal-header">
-            <text class="modal-title">外协检查详情</text>
+            <text class="modal-title">材料检查详情</text>
             <text class="close-btn" bindtap="closeDetailModal">×</text>
         </view>
 
         <view class="modal-content">
             <!-- 工序基本信息 -->
             <view class="detail-section">
-                <text class="section-title">外协检查信息</text>
+                <text class="section-title">材料检查信息</text>
                 <view class="detail-item">
                     <text class="detail-label">序号：</text>
                     <text class="detail-value">{{currentProcess.xh}}</text>
+                </view>
+                <view class="detail-item">
+                    <text class="detail-label">检查项目：</text>
+                    <text class="detail-value">{{currentProcess.jcxm}}</text>
                 </view>
                 <view class="detail-item">
                     <text class="detail-label">规范/公差：</text>
@@ -146,7 +151,7 @@
 
             <!-- 填空项区域 -->
             <view class="blank-section">
-                <text class="section-title">检查记录（根据样品数量生成）</text>
+                <text class="section-title">检查记录（根据样品数量）</text>
                 <view class="blank-tips">
                     <text>根据样品数量，共生成 {{blankItems.length}} 个检查点</text>
                 </view>
@@ -171,7 +176,7 @@
 <view class="modal-overlay" wx:if="{{showBlankModal}}">
     <view class="blank-input-modal" catchtap="">
         <view class="modal-header">
-            <text class="modal-title">填写外协检查记录 #{{currentBlankItem ? currentBlankItem.id : ''}}</text>
+            <text class="modal-title">填写材料检查记录 #{{currentBlankItem ? currentBlankItem.id : ''}}</text>
             <text class="close-btn" bindtap="closeBlankModal">×</text>
         </view>
         <view class="modal-content">

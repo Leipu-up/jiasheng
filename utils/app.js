@@ -373,6 +373,154 @@ class ApiService {
         });
     }
 
+    
+    // ========== 材料检查相关API ==========
+
+    /**
+     * 获取产品列表
+     * @param {Object} params - 查询参数
+     * @returns {Promise}
+     */
+    getCljcList(params = {}) {
+        const url = this.getUrl(this.endpoints.CLJC.LIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载外协检查列表...'
+        });
+    }
+
+    /**
+     * 获取产品详情
+     * @param {string} productId - 产品ID
+     * @returns {Promise}
+     */
+    getCljcDetail(productId) {
+        const url = this.getUrl(this.endpoints.CLJC.DETAIL);
+        return http.get(url, {
+            productId
+        }, {
+            showLoading: true,
+            loadingText: '加载外协检查详情...'
+        });
+    }
+
+    /**
+     * 搜索产品
+     * @param {Object} params - 搜索参数
+     * @returns {Promise}
+     */
+    searchCljc(params) {
+        const url = this.getUrl(this.endpoints.CLJC.SEARCH);
+        return http.get(url, params, {
+            showLoading: true,
+            loadingText: '搜索外协检查...'
+        });
+    }
+
+    /**
+     * 更新用户信息
+     * @param {Object} userData - 用户数据
+     * @returns {Promise}
+     */
+    saveCljc(params) {
+        const url = this.getUrl(this.endpoints.CLJC.SAVE);
+        return http.put(url, params, {
+            showLoading: true,
+            loadingText: '添加外协检查报告...'
+        });
+    }
+
+    
+    /**
+     * 获取工作列表
+     * @param {Object} params - 查询参数
+     * @returns {Promise}
+     */
+    getCljcjgbWorkList(params = {}) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    /**
+     * 获取工作详情
+     * @param {string|number} id - 工作ID
+     * @returns {Promise}
+     */
+    getCljcjgbWorkDetailList(params = {}) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBDETAILLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    getCljcjgbJjgxjcjgbList(params = {}) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBJJGXJCJGBLIST);
+        return http.post(url, params, {
+            showLoading: true,
+            loadingText: '加载工作列表...'
+        });
+    }
+
+    updateCljcjgbCheckRecord(data) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBSAVEJJGXJCJGB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    updateJjcljcjgb(data) {
+        const url = this.getUrl(this.endpoints.CLJC.UPDATEJJWXJCJGB);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    /**
+     * 创建工作记录
+     * @param {Object} data - 工作数据
+     * @returns {Promise}
+     */
+    createCljcjgbWork(data) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBCREATE);
+        return http.post(url, data, {
+            showLoading: true,
+            loadingText: '创建中...'
+        });
+    }
+
+    /**
+     * 更新工作记录
+     * @param {string|number} id - 工作ID
+     * @param {Object} data - 更新数据
+     * @returns {Promise}
+     */
+    updateCljcjgbWork(data) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBUPDATE);
+        return http.put(url, data, {
+            showLoading: true,
+            loadingText: '更新中...'
+        });
+    }
+
+    /**
+     * 删除工作记录
+     * @param {string|number} id - 工作ID
+     * @returns {Promise}
+     */
+    deleteCljcjgbWork(params) {
+        const url = this.getUrl(this.endpoints.CLJC.WXJCJGBDELETE);
+        return http.put(url, params, {
+            showLoading: true,
+            loadingText: '删除中...'
+        });
+    }
+
 
     // ========== 用户相关API ==========
 
